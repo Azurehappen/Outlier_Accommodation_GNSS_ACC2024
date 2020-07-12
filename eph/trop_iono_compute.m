@@ -1,0 +1,56 @@
+function cpt = trop_iono_compute(p,cpt,obs,re_pos,tdoy,ustec_i,user_t)
+% Compute tropospheric delay and iono delay for the measurements
+
+[p.lat, p.lon, p.h_r, ~, ~, ~] = ecef2llh(p,re_pos);
+%%%%% convert geodetic height to orthometric height
+%%%%% website: https://www.mathworks.com/matlabcentral/answers/97079-how-can-i-extract-the-orthometric-height-from-the-ellpsoiidal-height-in-the-mapping-toolbox-2-5-r20
+load geoid;
+%%%%% geodetic ellipsoidal separation
+N = ltln2val(geoid, geoidrefvec, p.lat*180/pi, p.lon*180/pi);
+%%%%% orthometric height of the receiver (Groves 2.121)
+H_r=p.h_r-N;
+% computing tropospheric delay for the reciever (s) using various
+len = length(cpt.corr_range);
+ind_prn = find(cpt.svprn_mark~=0);
+for i = 1:len
+    % tropo delay (meter) computation using UNB3M model
+    [cpt.trop_delay(i), ~, ~, ~, ~]=UNB3M(p.lat,H_r,tdoy,cpt.elev(i));
+    % Iono data from USTEC: https://www.ngdc.noaa.gov/stp/iono/ustec/products/
+    
+    %---------------------------%
+    % Select the frequncy
+    switch cpt.svprn_mark(ind_prn(i))
+        case 1 % GPS
+            switch obs.GPS.f1
+                case 'L1'
+                    freq = p.L1freq;
+                otherwise
+                    warning('Frequency type not support Iono delay computation, No result in this case');
+            end
+        case 2 % GLO
+            switch obs.GLO.f1
+                case 'G1'
+                    freq = p.L1freq;
+                otherwise
+                    warning('Frequency type not support Iono delay computation, No result in this case');
+            end
+        case 3 % GAL
+            switch obs.GAL.f1
+                case 'E1'
+                    freq = p.E1freq;
+                otherwise
+                    warning('Frequency type not support Iono delay computation, No result in this case');
+            end
+        case 4 % BDS
+            switch obs.BDS.f1
+                case 'B1'
+                    freq = p.B1freq;
+                otherwise
+                    warning('Frequency type not support Iono delay computation, No result in this case');
+            end
+    end
+    %---------------------------%
+    
+    % Computing Iono delay
+    [cpt.iono_delay(i),cpt.IoFac(i)] = ustec_iono_delay_computation(p,ustec_i,cpt.elev(i),cpt.az(i),user_t,freq);
+end

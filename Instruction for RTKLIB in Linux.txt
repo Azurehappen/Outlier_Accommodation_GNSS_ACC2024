@@ -1,0 +1,16 @@
+1. git clone https://github.com/tomojitakasu/RTKLIB.git
+2. cd RTKLIB/lib/iers/gcc/
+3. make (if you see error about "gfortran": sudo apt-get install gfortran, then "make")
+4. go to the folder that the application you want to use, for example "RNX2RTKP" (see A.1 in Appendix A of RTKLIB manual)
+cd ../../../
+cd app/rnx2rtkp/gcc
+5. make
+7. try ./rnx2rtkp -p 0 -m 15 -n /home/***/RTKLIB/test/data/rinex/07590920.05o /home/***/RTKLIB/test/data/rinex/30400920.05n
+to see if get results. "***" is your system name.
+
+RTKLIB manual http://www.rtklib.com/prog/manual_2.4.2.pdf
+Appendix A for some implementation details.
+
+To change option of GNSS system, go to rnx2rtkp.c
+
+In rinex.c, function decode_geph has a way to compute GLO IODE.
