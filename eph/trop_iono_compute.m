@@ -1,4 +1,4 @@
-function cpt = trop_iono_compute(p,cpt,obs,re_pos,tdoy,ustec_i,user_t)
+function cpt = trop_iono_compute(p,eph,cpt,obs,re_pos,tdoy,ustec_i,user_t)
 % Compute tropospheric delay and iono delay for the measurements
 
 [p.lat, p.lon, p.h_r, ~, ~, ~] = ecef2llh(p,re_pos);
@@ -14,43 +14,54 @@ len = length(cpt.corr_range);
 ind_prn = find(cpt.svprn_mark~=0);
 for i = 1:len
     % tropo delay (meter) computation using UNB3M model
-    [cpt.trop_delay(i), ~, ~, ~, ~]=UNB3M(p.lat,H_r,tdoy,cpt.elev(i));
+    [cpt.trop_delay(i), ~, ~, ~, cpt.IoFac(i)]=UNB3M(p.lat,H_r,tdoy,cpt.elev(i));
     % Iono data from USTEC: https://www.ngdc.noaa.gov/stp/iono/ustec/products/
     
     %---------------------------%
     % Select the frequncy
     switch cpt.svprn_mark(ind_prn(i))
         case 1 % GPS
-            switch obs.GPS.f1
-                case 'L1'
-                    freq = p.L1freq;
-                otherwise
-                    warning('Frequency type not support Iono delay computation, No result in this case');
-            end
+            freq = p.L1freq;
+%             switch obs.GPS.f1
+%                 case 'L1'
+%                     freq = p.L1freq;
+%                 otherwise
+%                     warning('Frequency type not support Iono delay computation, No result in this case');
+%             end
         case 2 % GLO
-            switch obs.GLO.f1
-                case 'G1'
-                    freq = p.L1freq;
-                otherwise
-                    warning('Frequency type not support Iono delay computation, No result in this case');
-            end
+            freq = p.L1freq;
+%             switch obs.GLO.f1
+%                 case 'G1'
+%                     freq = p.L1freq;
+%                 otherwise
+%                     warning('Frequency type not support Iono delay computation, No result in this case');
+%             end
         case 3 % GAL
-            switch obs.GAL.f1
-                case 'E1'
-                    freq = p.E1freq;
-                otherwise
-                    warning('Frequency type not support Iono delay computation, No result in this case');
-            end
+            freq = p.E1freq;
+%             switch obs.GAL.f1
+%                 case 'E1'
+%                     freq = p.E1freq;
+%                 otherwise
+%                     warning('Frequency type not support Iono delay computation, No result in this case');
+%             end
         case 4 % BDS
-            switch obs.BDS.f1
-                case 'B1'
-                    freq = p.B1freq;
-                otherwise
-                    warning('Frequency type not support Iono delay computation, No result in this case');
-            end
+            freq = p.B1freq;
+%             switch obs.BDS.f1
+%                 case 'B1'
+%                     freq = p.B1freq;
+%                 otherwise
+%                     warning('Frequency type not support Iono delay computation, No result in this case');
+%             end
     end
     %---------------------------%
-    
-    % Computing Iono delay
-    [cpt.iono_delay(i),cpt.IoFac(i)] = ustec_iono_delay_computation(p,ustec_i,cpt.elev(i),cpt.az(i),user_t,freq);
+    if ~isempty(ustec_i)
+        % Computing Iono delay
+        [cpt.iono_delay(i)] = ustec_iono_delay_computation(p,ustec_i,cpt.elev(i),cpt.az(i),user_t,freq);
+    else
+        if ~isempty(eph.ionoParameters)
+            [cpt.iono_delay(i)] = klobuchar_model(p,eph.ionoParameters,cpt.elev(i),cpt.az(i),user_t.sow);
+        else
+            cpt.iono_delay(i) = 0;
+        end
+    end  
 end

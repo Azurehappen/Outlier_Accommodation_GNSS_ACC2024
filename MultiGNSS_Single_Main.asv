@@ -13,33 +13,32 @@ addpath('corr')
 %--------------------------------%
 % Pick the Data Number
 initpath = 'data/';
-data_num = 2;
-[eph_name,obs_name,IGS_name,data_base,code_bia,Grdpos,USTEC_folderpath] = datapathload(data_num,initpath);
+USTEC_folderpath = "data/USTEC/";
+data_num = 1;
+[eph_name,obs_name,IGS_name,data_base,code_bia,Grdpos] = datapathload(data_num,initpath);
 %--------------------------------%
 
 % Initialize parameters
-[p,eph,obs] = initialization(eph_name,obs_name,Grdpos);
+[p,eph,obs,t] = initialization(eph_name,obs_name,Grdpos);
 % obs.GLO.S1 = obs.GLO.S2; % Uncomment when GLO in data 8
 % obs.BDS.P1(18,:) = 0;
 % Mode setting
 p.run_mode = 0;
-p.post_mode  = 0; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
+p.post_mode  = 3; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
 p.VRS_mode = 0;
 p.IGS_enable = 1;
 p.double_diff = 0;
 p.elev_mark  = 15*pi/180;
-p.enableGPS  = 0; % Enable GPS: 1 means enable, 0 means close
+p.enableGPS  = 1; % Enable GPS: 1 means enable, 0 means close
 p.enableGLO  = 0; % Enable GLO: 1 means enable, 0 means close
 p.enableGAL  = 0; % Enable GAL: 1 means enable, 0 means close
-p.enableBDS  = 1; % Enable BDS: 1 means enable, 0 means close
-p.inval = 10; % Computation time interval
-p.tec_tmax = 15;
-p.tec_tmin = 0;
+p.enableBDS  = 0; % Enable BDS: 1 means enable, 0 means close
+p.inval = 30; % Computation time interval
+
 %--------------------------------%
 p = load_PPP_corr(p,data_base,IGS_name,eph,USTEC_folderpath);
-if ~isempty(code_bia)
-    p.code_bia = parser_bia(code_bia);
-end
+p.USTEC = load_USTEC(obs.tr_prime(:,1),obs.tr_prime(:,end),"data/");
+p.code_bia = parser_bia(code_bia);
 %-------------%
 output = compute_gnss_ecef(p,eph,obs);
 % p.min_sv = 6;
@@ -60,11 +59,11 @@ title('Horizontal positioning error')
 xlabel('Local time')
 ylabel('Error, unit: meter');grid on
 
-figure
-scatter(output.gpst,output.sv_num_GPS+output.sv_num_GLO+output.sv_num_GAL+output.sv_num_BDS,'.')
-title('total satellites been used')
-xlabel('Receiver time using GPS second')
-ylabel('Distance, unit: meter');grid on
+% figure
+% scatter(output.gpst,output.sv_num_GPS+output.sv_num_GLO+output.sv_num_GAL+output.sv_num_BDS,'.')
+% title('total satellites been used')
+% xlabel('Receiver time using GPS second')
+% ylabel('Distance, unit: meter');grid on
 % % 
 figure
 scatter(t,output.rover_clk/p.c,'.')

@@ -18,22 +18,22 @@ log.sv_num_GLO = NaN(1,N); % The amount of GLO satellit  used
 log.sv_num_GAL = NaN(1,N); % The amount of GAL satellite be used
 log.sv_num_BDS = NaN(1,N); % The amount of BDS satellite be used
 if ~isempty(obs.GPS)
-    log.num_obs_gps = size(obs.GPS.P1,1); % The maximum of PRN recorded in obs data
+    log.num_obs_gps = size(obs.GPS(1).data.P,1); % The maximum of PRN recorded in obs data
 else
     log.num_obs_gps = 0;
 end
 if ~isempty(obs.GLO)
-    log.num_obs_glo = size(obs.GLO.P1,1); % The maximum of PRN recorded in obs data
+    log.num_obs_glo = size(obs.GLO(1).data.P,1); % The maximum of PRN recorded in obs data
 else
     log.num_obs_glo = 0;
 end
 if ~isempty(obs.GAL)
-    log.num_obs_gal = size(obs.GAL.P1,1); % The maximum of PRN recorded in obs data
+    log.num_obs_gal = size(obs.GAL(1).data.P,1); % The maximum of PRN recorded in obs data
 else
     log.num_obs_gal = 0;
 end
 if ~isempty(obs.BDS)
-    log.num_obs_bds = size(obs.BDS.P1,1); % The maximum of PRN recorded in obs data
+    log.num_obs_bds = size(obs.BDS(1).data.P,1); % The maximum of PRN recorded in obs data
 else
     log.num_obs_bds = 0;
 end
@@ -126,6 +126,11 @@ for i = 1:p.inval:N
 %                     else
                         % Compute the final position
 %                       [re_pos,clock_bias,res] = userpos_Rcorr(p,cpt);
+                      tdoy = doy(obs.tr_prime(1:3,i)); % Day of year
+                      [rt.week, rt.dow, rt.sow] = date2gnsst(obs.tr_prime(:,i)');
+                      cpt.IoFac = zeros(length(cpt.corr_range),1);
+                      cpt = trop_iono_compute(p,eph,cpt,obs,p.state0(1:3),tdoy,[],rt);
+                      cpt.corr_range = cpt.corr_range - cpt.trop_delay - cpt.iono_delay;
                       [re_pos,clock_bias,res] = userpos(p,cpt);
                       [log,p.state0] = save_result(p,cpt,log,i,re_pos,clock_bias,res);
 %                     end
@@ -134,7 +139,7 @@ for i = 1:p.inval:N
                     [rt.week, rt.dow, rt.sow] = date2gnsst(obs.tr_prime(:,i)');
                         %%-------------%%
                         cpt.IoFac = zeros(length(cpt.corr_range),1);
-                        cpt = trop_iono_compute(p,cpt,obs,p.state0(1:3),tdoy,p.USTEC,rt);
+                        cpt = trop_iono_compute(p,eph,cpt,obs,p.state0(1:3),tdoy,p.USTEC,rt);
                         % Using the correction to the measurements
                         if ~isempty(find(cpt.iono_delay~=0, 1))
                         cpt.corr_range = cpt.corr_range - cpt.trop_delay - cpt.iono_delay;

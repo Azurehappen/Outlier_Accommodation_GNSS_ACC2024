@@ -41,8 +41,7 @@ if p.post_mode == 1 && ~isempty(p.IGS) && p.IGS_enable == 1
                 if length(tidx)>1
                     ei = find(eph.IODE(prn,tidx) == p.IGS.GAL.orbit_IDOE(prn,obt_idx));
                     if ~isempty(ei)
-                        tidx = tidx(ei);
-                        tidx = tidx(end);
+                        tidx = tidx(ei(end));
                     else
                         pos_tage = 0;
                     end
@@ -58,38 +57,46 @@ if p.post_mode == 1 && ~isempty(p.IGS) && p.IGS_enable == 1
                 tidx=tidx(end);
             case 'BDS'
                 tidx=tidx(end);
-%                 if length(tidx)>1
-%                     ei = find(eph.IODE(prn,tidx) == p.IGS.BDS.orbit_IDOE(prn,obt_idx));
-%                     if ~isempty(ei)
-%                         tidx = tidx(ei);
-%                         tidx = tidx(end);
-%                     else
-%                         pos_tage = 0;
-%                     end
-%                 else
-%                     if ~(p.IGS.BDS.orbit_IDOE(prn,obt_idx) == eph.IODE(prn,tidx))
-%                         pos_tage = 0;
-%                     end
-%                 end
+                if length(tidx)>1
+                    ei = find(eph.IODE(prn,tidx) == p.IGS.BDS.orbit_IDOE(prn,obt_idx));
+                    if ~isempty(ei)
+                        tidx = tidx(ei(end));
+                    else
+                        pos_tage = 0;
+                    end
+                else
+                    if ~(p.IGS.BDS.orbit_IDOE(prn,obt_idx) == eph.IODE(prn,tidx))
+                        pos_tage = 0;
+                    end
+                end
         end
     else
         pos_tage = 0;
         
     end
+    cb_i = find(limit_tgps(t_sv - p.IGS.cdb_iTOW)>=0);
     if pos_tage == 1
         switch sys_type
             case 'GPS'
                 IGSdata = p.IGS.GPS;
-                icb = p.icb_gps;
+                if ~isempty(cb_i)
+                    icb = p.IGS.GPS.code_bias_C1C(:,cb_i(end));
+                else
+                    icb = zeros(50,1);
+                end
             case 'GLO'
                 IGSdata = p.IGS.GLO;
                 icb = p.icb_glo;
             case 'GAL'
                 IGSdata = p.IGS.GAL;
-                icb = zeros(50,1);
+                icb = p.code_bia.GAL.bia_C1C;
             case 'BDS'
                 IGSdata = p.IGS.BDS;
-                icb = zeros(50,1);
+                if ~isempty(cb_i)
+                    icb = p.IGS.BDS.code_bias_C2I(:,cb_i(end));
+                else
+                    icb = zeros(50,1);
+                end
         end
         if isempty(IGSdata)
             pos_tage = 0;

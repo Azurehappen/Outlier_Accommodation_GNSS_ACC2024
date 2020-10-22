@@ -23,28 +23,28 @@ satlog.tp = zeros(len_prn,1);
 obs_tr = obs.tr_sow(ind);
 switch(sys_type)
     case 'GPS'
-        obs_range = obs.GPS.P1(:,ind);
-        Strength = obs.GPS.S1(:,ind);
+        obs_range = obs.GPS(1).data.P(:,ind);
+        Strength = obs.GPS(1).data.S(:,ind);
         message_duration = p.gps.message_duration;
-        eph_info = eph.gps;
+        eph_info = eph.GPS;
     case 'GLO'
-        obs_range = obs.GLO.P1(:,ind);
-        Strength = obs.GLO.S1(:,ind);
+        obs_range = obs.GLO(1).data.P(:,ind);
+        Strength = obs.GLO(1).data.S(:,ind);
         message_duration = p.glo.message_duration;
         obs_tr = time_shift(obs_tr - p.glo.lps_gps); % Correct time diff from GPS time to GLO time
-        eph_info = eph.glo;
+        eph_info = eph.GLO;
     case 'GAL'
-        obs_range = obs.GAL.P1(:,ind);
-        Strength = obs.GAL.S1(:,ind);
+        obs_range = obs.GAL(1).data.P(:,ind);
+        Strength = obs.GAL(1).data.S(:,ind);
         message_duration = p.gal.message_duration;
         obs_tr = time_shift(obs_tr - p.gal.lps_gps); % Correct time diff from GPS time to GAL time
-        eph_info = eph.gal;
+        eph_info = eph.GAL;
     case 'BDS'
-        obs_range = obs.BDS.P1(:,ind);
-        Strength = obs.BDS.S1(:,ind);
+        obs_range = obs.BDS(1).data.P(:,ind);
+        Strength = obs.BDS(1).data.S(:,ind);
         message_duration = p.bds.message_duration;
         obs_tr = time_shift(obs_tr - p.bds.lps_gps); % Correct time diff from GPS time to BDS time
-        eph_info = eph.bds;
+        eph_info = eph.BDS;
 end
 
 for j = 1 :len_prn

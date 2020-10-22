@@ -1,13 +1,14 @@
-function p = load_PPP_corr(p,data_base,USTEC_folderpath,IGS_name,eph)
+function p = load_PPP_corr(p,data_base,IGS_name,eph,USTEC_folderpath)
 
 % USTEC & IGS data
 if p.post_mode==1 || p.post_mode==3% If PPP, parse the iono correction
     if ~isempty(USTEC_folderpath)
-        matname = [USTEC_folderpath '.mat'];
+        matname = USTEC_folderpath + "USTEC.mat";
         if exist(matname,'file')==2
             load(matname);
             p.USTEC = USTEC;
         else
+            load_USTEC(p.t(1),p.t(end),USTEC_folderpath);
             USTEC = parser_USTEC(USTEC_folderpath);  
             p.USTEC = USTEC;
             save(matname,'USTEC')
@@ -22,7 +23,7 @@ if p.post_mode==1 || p.post_mode==3% If PPP, parse the iono correction
             load(matname);
             p.IGS = IGS;
         else
-            IGS = parser_IGS(IGS_name);
+            IGS = parser_CNES(IGS_name);
             p.IGS = IGS;
             save(matname,'IGS')
         end

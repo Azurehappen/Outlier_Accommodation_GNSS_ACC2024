@@ -1,4 +1,4 @@
-function [iono_delay,mp_fact]=ustec_iono_delay_computation(p,ustec_i,elev,az,user_t,freq)
+function [iono_delay]=ustec_iono_delay_computation(p,ustec_i,elev,az,user_t,freq)
 %%%% input:
 %%%% p: parameters
 %%%% ustec_i: USTEC map
@@ -55,7 +55,7 @@ for ii=1:iono_l
     DOW = ustec_i(ii).Gdow;
     SOW = ustec_i(ii).Gsow;    
     if Week == user_t.week
-        if (user_t.sow - SOW < 15*60) && (user_t.sow - SOW > 0)
+        if (user_t.sow - SOW < p.tec_tmax*60) && (user_t.sow - SOW >= p.tec_tmin)
             iono_map_idx = ii;
             break;
         end
@@ -69,6 +69,7 @@ for ii=1:iono_l
     
 end
 if ~isempty(iono_map_idx)
+    log.tdiff = (user_t.sow - SOW)/60;
 %%%% multiplying factor(vertical to slant conversion)
 m=(p.Re*cos(elev)/(p.Re+p.h_iono));
 
@@ -140,9 +141,11 @@ mp_fact=(1-(m)^2)^(-1/2);
 %%%% get slant tec
 %    stec_pp=vtec_pp/(mp_fact*10);
 stec_pp=(vtec_pp/10)*mp_fact;
-
+log.mp_fact = mp_fact;
+log.vtec = vtec_pp/10;
 %%% get slant iono delay
 %    iono_delay=((40.3/(p.gps.L1*p.gps.L2))*stec_pp)*1e16;
+%iono_delay=((40.3/(freq)^2 + 5.6*10e7/(freq)^3)*stec_pp)*1e16;
 iono_delay=((40.3/(freq)^2)*stec_pp)*1e16;
 end
 

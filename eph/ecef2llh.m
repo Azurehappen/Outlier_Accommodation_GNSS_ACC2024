@@ -28,7 +28,7 @@ e = p.e;
 % convert xyz to llh
 h = 0;
 N = a;
-p = norm(xyz(1:2));
+pp = norm(xyz(1:2));
 z = xyz(3);
 lambda = 0;
 limit = 1;
@@ -41,9 +41,9 @@ for iter = 0:10
         s_lambda = -limit;
     end
 
-	lambda = atan2((z + e^2*N*s_lambda), p);
+	lambda = atan2((z + e^2*N*s_lambda), pp);
 	N = a / sqrt(1.0 - (e*s_lambda)^2);
-	h = p / cos(lambda) - N;
+	h = pp / cos(lambda) - N;
 end
 
 lat = lambda;

@@ -1,6 +1,11 @@
 # MultiGNSS_Matlab
 A MATLAB tutorial for Multi-GNSS in Standard, DGNSS, PPP
 
+Current targeted signal:
+GPS: L1
+GLO:
+GAL:
+BDS: B1I (Before customized the satellite position calculation, please read BDS ICD, different signal channel may have different computation.)
 
 In parser_eph, the unit in GLO ephemeris related to 'km' has been convert to meter by multipling 1000.
 Time in obs data need to be restricted by GPS time.
@@ -40,3 +45,5 @@ Broadcast Corrections in RTCM Version 3 Format： http://www.gnsser.com/Informat
 
 IGS data stream monitor:
 https://bkgmonitor.gnssonline.eu/cgi-bin/bkgmonitor.cgi??mod=Monitoring&stream=&caster=products.igs-ip.net&moniMod=Verbose&moniTyp=All&lang=en&bDate=2020-07-11&bHour=00&bMin=00&bSec=00&eDate=2020-07-12&eHour=00&eMin=00&eSec=00
+
+Useful PPP data source: https://cddis.nasa.gov/Data_and_Derived_Products/GNSS/gnss_differential_code_bias_product.html

@@ -1,4 +1,4 @@
-function [p,eph,obs] = initialization(eph_name,obs_name,Grdpos)
+function [p,eph,obs,t] = initialization(eph_name,obs_name,Grdpos)
 %-------------------------------------------------------------------------%
 %Define the constant parameters for GNSS system
 %-------------------------------------------------------------------------%
@@ -21,7 +21,7 @@ if exist(matname,'file')==2 % Check if the data already been parsed
     load(matname);
 else
     % Get ephemeris data (.nav file, RINEX verion 3.03)
-    eph = parser_eph(p,navname);
+    eph = parser_nav(p,navname);
     save ([eph_name,'_nav.mat'], 'eph');
 end
 matname = [obs_name '_obs.mat'];
@@ -32,10 +32,7 @@ else
     obs = parser_obs(obsname);
     save ([obs_name,'_obs.mat'], 'obs');
 end
-
-%%%%% load icb corrections
-load('data/DCB.mat');
-p.icb_gps = DCB_P1C1;
+p.t = datetime(obs.tr_prime');
 % load('data/DCB_GLO.mat');
 % p.icb_glo = DCB_P1C1;
 % Setting
@@ -63,8 +60,8 @@ p.E6freq = 1278.75e6; % E6 frequency (Hz)
 p.E5freq = 1191.795e6; % E5 frequency (Hz)
 p.E5afreq = 1176.45e6; % E5a frequency (Hz)
 p.E5bfreq = 1207.14e6; % E5b frequency (Hz)
-p.B1freq = 1561.098e6; % B1C frequency (Hz)
-p.B2afreq = 1176.45e6; % B2a frequency (currently not supported)
+p.B1freq = 1561.098e6; % B1I frequency (Hz)
+p.B2afreq = 1207.14e6; % B2b frequency (currently not supported)
 p.state0 = [0;0;0;0]; % Initial state vector at first iteration, maybe changed in other functions
 %                             [x;y;z;clk_bias]
 p.mk=0;
@@ -136,8 +133,8 @@ p.gal.message_duration = 7200;
 % Reference ''
 %---------------------------------------%
 p.glo.mu = 3.986004418e+14; % Geocentric gravitational constant (m^3/s^2)
-p.glo.OmegaDot_e = 7.2921151467e-5; % Earth¡¯s rotation rate
-p.glo.F = -2*sqrt(p.gal.mu)/(p.c^2); % BeiDou-ICD page 58
+p.glo.OmegaDot_e = 7.2921151467e-5; % Earth's rotation rate
+p.glo.F = -2*sqrt(p.gal.mu)/(p.c^2); % 
 p.glo.a_e = 6378136; %  semi-major (equatorial) axis of the PZ-90 Earth’s ellipsoid
 p.glo.C_20 = 1082625.75e-9; %  second degree zonal coefficient of normal potential
 p.glo.message_duration = 1800; %54000;
@@ -145,11 +142,17 @@ p.glo.message_duration = 1800; %54000;
 % Reference 'http://en.beidou.gov.cn/SYSTEMS/ICD/201902/P020190227702348791891.pdf'
 %---------------------------------------%
 p.bds.mu = 3.986004418e+14; % Geocentric gravitational constant (m^3/s^2)
-p.bds.OmegaDot_e = 7.2921150e-5; % Earth¡¯s rotation rate
+p.bds.OmegaDot_e = 7.2921150e-5; % Earth's rotation rate
 p.bds.F = -2*sqrt(p.gal.mu)/(p.c^2); % BeiDou-ICD page 58
-p.bds.num_prn = 35; % The amoount of BDS satellites
+p.bds.num_prn = 40; % The amoount of BDS satellites
 p.bds.message_duration = 3600;
 % Measurement selection
 p.select = 0;
+
+%---------------------------------------%
+p.GPS_C1C = 1;p.GPS_C1W = 2;p.GPS_C2L = 3;p.GPS_C2W = 4;
+p.GLO_C1C = 1;p.GLO_C1P = 2;p.GLO_C2C = 3;p.GLO_C2P = 4;
+p.GAL_C1X = 1;p.GAL_C7X = 2;
+P.BDS_C2I = 1;p.BDS_C7I = 2;
 
 end

@@ -36,18 +36,14 @@ tm = t_sv;
 
 % Find if there is PPP IGS correction
 [tidx,obt_idx,clk_idx,pos_tage,IGSdata,icb] = tidxconf(p,t_sv,prn,tidx,eph,sys_type);
-if pos_tage ==1
+
 switch sys_type
     case 'GPS'
         sysp = p.gps;
         group_delay = eph.TGD(prn,tidx);
     case 'GAL'
         sysp = p.gal;
-        if p.post_mode == 1 && p.IGS_enable == 1
-            group_delay = icb(prn)*1e-9;
-        else
-            group_delay = eph.BGD_E5a(prn,tidx);
-        end
+        group_delay = icb(prn)*1e-9;
 %         if strcmp(obs.GAL.f1,'E1')
 %             group_delay = eph.BGD_E5a(prn,tidx);
 %         elseif strcmp(obs.GAL.f1,'E5a')
@@ -59,7 +55,6 @@ switch sys_type
         sysp = p.bds;
         % Currently RINEX 3.03 only provide info for B1, no B2a
         group_delay = eph.TGD1(prn,tidx);
-end
 end
 %------------------------------------------------%
 if pos_tage ==1 && group_delay ~=0
@@ -87,10 +82,10 @@ Ek = p.Ek0;
 if p.post_mode == 1 && p.IGS_enable == 1
     if icb(prn) == 0
         sat.pos_ecef = NaN(3,1); 
-        sat.v_ecef = NaN(3,1); 
-        sat.pos_prc = NaN(3,1);
-        return
-    end
+        sat.v_ecef = NaN(3,1);
+if p.post_mode == 1
+    % Save the precise pos and velocity in PPP mode 
+    sat.pos_prc = NaN(3,1);
     dt_sv_p = sat_clock_precise(p,IGSdata,prn,clk_idx,tm);
     if strcmp(sys_type,'GAL')
         dt_sv = dt_sv + dt_sv_p;
