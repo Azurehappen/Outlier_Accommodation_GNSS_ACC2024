@@ -56,7 +56,6 @@ if p.post_mode == 1 && ~isempty(p.IGS) && p.IGS_enable == 1
 %                 tidx = tidx(abs(dtr) == min(abs(dtr)));
                 tidx=tidx(end);
             case 'BDS'
-                tidx=tidx(end);
                 if length(tidx)>1
                     ei = find(eph.IODE(prn,tidx) == p.IGS.BDS.orbit_IDOE(prn,obt_idx));
                     if ~isempty(ei)

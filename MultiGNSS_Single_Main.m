@@ -27,12 +27,12 @@ p.post_mode  = 1; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
 p.VRS_mode = 0;
 p.IGS_enable = 1;
 p.double_diff = 0;
-p.elev_mark  = 20*pi/180;
-p.enableGPS  = 0; % Enable GPS: 1 means enable, 0 means close
+p.elev_mark  = 15*pi/180;
+p.enableGPS  = 1; % Enable GPS: 1 means enable, 0 means close
 p.enableGLO  = 0; % Enable GLO: 1 means enable, 0 means close
 p.enableGAL  = 1; % Enable GAL: 1 means enable, 0 means close
-p.enableBDS  = 0; % Enable BDS: 1 means enable, 0 means close
-p.inval = 10; % Computation time interval
+p.enableBDS  = 1; % Enable BDS: 1 means enable, 0 means close
+p.inval = 1; % Computation time interval
 p.tec_tmax = 15;
 p.tec_tmin = 0;
 %--------------------------------%
