@@ -13,7 +13,7 @@ addpath('corr')
 %--------------------------------%
 % Pick the Data Number
 initpath = 'data/';
-data_num = 2;
+data_num = 1;
 [eph_name,obs_name,IGS_name,data_base,code_bia,Grdpos,USTEC_folderpath] = datapathload(data_num,initpath);
 %--------------------------------%
 
@@ -23,15 +23,15 @@ data_num = 2;
 % obs.BDS.P1(18,:) = 0;
 % Mode setting
 p.run_mode = 0;
-p.post_mode  = 0; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
+p.post_mode  = 1; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
 p.VRS_mode = 0;
 p.IGS_enable = 1;
 p.double_diff = 0;
-p.elev_mark  = 15*pi/180;
+p.elev_mark  = 20*pi/180;
 p.enableGPS  = 0; % Enable GPS: 1 means enable, 0 means close
 p.enableGLO  = 0; % Enable GLO: 1 means enable, 0 means close
-p.enableGAL  = 0; % Enable GAL: 1 means enable, 0 means close
-p.enableBDS  = 1; % Enable BDS: 1 means enable, 0 means close
+p.enableGAL  = 1; % Enable GAL: 1 means enable, 0 means close
+p.enableBDS  = 0; % Enable BDS: 1 means enable, 0 means close
 p.inval = 10; % Computation time interval
 p.tec_tmax = 15;
 p.tec_tmin = 0;
@@ -60,30 +60,38 @@ title('Horizontal positioning error')
 xlabel('Local time')
 ylabel('Error, unit: meter');grid on
 
+total = output.sv_num_GPS + output.sv_num_GAL + output.sv_num_BDS;
 figure
-scatter(output.gpst,output.sv_num_GPS+output.sv_num_GLO+output.sv_num_GAL+output.sv_num_BDS,'.')
+scatter(p.t,output.sv_num_GPS,'.')
+hold on
+scatter(p.t,output.sv_num_GAL,'.')
+hold on
+scatter(p.t,output.sv_num_BDS,'.')
+hold on
+scatter(p.t,total,'.')
 title('total satellites been used')
+legend('GPS','GAL','BDS','Total')
 xlabel('Receiver time using GPS second')
 ylabel('Distance, unit: meter');grid on
 % % 
-figure
-scatter(p.t,output.rover_clk/p.c,'.')
-title('Local bias')
-xlabel('Receiver time using GPS second');
-ylabel('Clock bias, seconds');grid on
+% figure
+% scatter(p.t,output.rover_clk/p.c,'.')
+% title('Local bias')
+% xlabel('Receiver time using GPS second');
+% ylabel('Clock bias, seconds');grid on
 % 
 
-figure
-subplot(311)
-scatter(p.t,output.ned_err(1,:),'.')
-title('North Error in NED');grid on;
-subplot(312)
-scatter(p.t,output.ned_err(2,:),'.')
-title('East Error in NED');grid on;
-subplot(313)
-scatter(p.t,output.ned_err(3,:),'.')
-title('Down Error in NED')
-xlabel('Receiver time using GPS second');grid on;
+% figure
+% subplot(311)
+% scatter(p.t,output.ned_err(1,:),'.')
+% title('North Error in NED');grid on;
+% subplot(312)
+% scatter(p.t,output.ned_err(2,:),'.')
+% title('East Error in NED');grid on;
+% subplot(313)
+% scatter(p.t,output.ned_err(3,:),'.')
+% title('Down Error in NED')
+% xlabel('Receiver time using GPS second');grid on;
 % figure
 % for i=1:32
 %     scatter(output.gpst,output.res_GPS(i,:),'.')

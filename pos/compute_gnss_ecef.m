@@ -48,7 +48,8 @@ log.elev_BDS = NaN(log.num_obs_bds,N);
 log.res = [log.res_GPS;log.res_GAL;log.res_GLO;log.res_BDS];
 log.elev = [log.elev_GPS;log.elev_GAL;log.elev_GLO;log.elev_BDS];
 % Mark the sat prn that be computed
-gpslog.svprn_mark = [];glolog.svprn_mark = [];gallog.svprn_mark = [];bdslog.svprn_mark = [];
+gpslog.svprn_mark = zeros(log.num_obs_gps,1);glolog.svprn_mark = zeros(log.num_obs_glo,1);
+gallog.svprn_mark = zeros(log.num_obs_gal,1);bdslog.svprn_mark = zeros(log.num_obs_bds,1);
 % Record the prn of each system for whose satllite been used
 gpslog.prn_record = [];glolog.prn_record = [];gallog.prn_record = [];bdslog.prn_record = [];
 % Satellite position in ECEF frame

@@ -40,7 +40,11 @@ if pos_tage ==1
 switch sys_type
     case 'GPS'
         sysp = p.gps;
-        group_delay = eph.TGD(prn,tidx);
+        if p.post_mode == 1 && p.IGS_enable == 1
+            group_delay = icb(prn)*1e-9;
+        else
+            group_delay = eph.TGD(prn,tidx);
+        end
     case 'GAL'
         sysp = p.gal;
         if p.post_mode == 1 && p.IGS_enable == 1
@@ -58,7 +62,11 @@ switch sys_type
     case 'BDS'
         sysp = p.bds;
         % Currently RINEX 3.03 only provide info for B1, no B2a
-        group_delay = eph.TGD1(prn,tidx);
+        if p.post_mode == 1 && p.IGS_enable == 1
+            group_delay = icb(prn)*1e-9;
+        else
+            group_delay = eph.TGD1(prn,tidx);
+        end
 end
 end
 %------------------------------------------------%
@@ -95,7 +103,7 @@ if p.post_mode == 1 && p.IGS_enable == 1
     if strcmp(sys_type,'GAL')
         dt_sv = dt_sv + dt_sv_p;
     else
-        dt_sv = dt_sv + dt_sv_p + icb(prn)*1e-9;
+        dt_sv = dt_sv + dt_sv_p;% + icb(prn)*1e-9;
     end
     sat.pos_prc = sat_position_precise(p,IGSdata,sat.pos_ecef,sat.v_ecef,prn,obt_idx,tm);
 end

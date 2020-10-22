@@ -7,6 +7,8 @@ GLO:
 GAL:
 BDS: B1I (Before customized the satellite position calculation, please read BDS ICD, different signal channel may have different computation.)
 
+Check BDS satellite type: http://mgex.igs.org/IGS_MGEX_Status_BDS.php
+
 In parser_eph, the unit in GLO ephemeris related to 'km' has been convert to meter by multipling 1000.
 Time in obs data need to be restricted by GPS time.
 

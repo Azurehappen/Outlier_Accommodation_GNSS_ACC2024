@@ -79,11 +79,12 @@ if p.post_mode == 1 && ~isempty(p.IGS) && p.IGS_enable == 1
         switch sys_type
             case 'GPS'
                 IGSdata = p.IGS.GPS;
-                if ~isempty(cb_i)
-                    icb = p.IGS.GPS.code_bias_C1C(:,cb_i(end));
-                else
-                    icb = zeros(50,1);
-                end
+                icb = p.code_bia.GPS.bia_C1C;
+%                 if ~isempty(cb_i)
+%                     icb = p.IGS.GPS.code_bias_C1C(:,cb_i(end));
+%                 else
+%                     icb = zeros(50,1);
+%                 end
             case 'GLO'
                 IGSdata = p.IGS.GLO;
                 icb = p.icb_glo;
@@ -92,11 +93,12 @@ if p.post_mode == 1 && ~isempty(p.IGS) && p.IGS_enable == 1
                 icb = p.code_bia.GAL.bia_C1C;
             case 'BDS'
                 IGSdata = p.IGS.BDS;
-                if ~isempty(cb_i)
-                    icb = p.IGS.BDS.code_bias_C2I(:,cb_i(end));
-                else
-                    icb = zeros(50,1);
-                end
+                icb = p.code_bia.BDS.bia_C2I;
+%                 if ~isempty(cb_i)
+%                     icb = p.IGS.BDS.code_bias_C2I(:,cb_i(end));
+%                 else
+%                     icb = zeros(50,1);
+%                 end
         end
         if isempty(IGSdata)
             pos_tage = 0;

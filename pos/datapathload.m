@@ -7,7 +7,7 @@ switch(data_num)
         obs_name = 'Multi-GNSS_test';
         IGS_name = 'SSRA00CNE02940.20C';
         USTEC_folderpath = "data/USTEC/";
-        code_bia = 'CAS0MGXRAP_2020291_OSB.BIA'; % MGEX code bias product for GAL I channel
+        code_bia = 'CAS0MGXRAP_2020292_OSB.BIA'; % MGEX code bias product for GAL I channel
         data_base = [];
         Grdpos = [-2430697.699;-4704189.201;3544329.103];
     case 2
