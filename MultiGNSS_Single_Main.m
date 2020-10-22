@@ -47,14 +47,14 @@ output = compute_gnss_ecef(p,eph,obs);
 
 %%
 figure
-scatter(t,output.err,'.')
+scatter(p.t,output.err,'.')
 xtickformat('yyyy-MM-dd HH:mm:ss')
 title('ECEF positioning error')
 xlabel('Local time')
 ylabel('Error, unit: meter');grid on
 
 figure
-scatter(t,output.hor_err,'.')
+scatter(p.t,output.hor_err,'.')
 xtickformat('yyyy-MM-dd HH:mm:ss')
 title('Horizontal positioning error')
 xlabel('Local time')
@@ -67,7 +67,7 @@ xlabel('Receiver time using GPS second')
 ylabel('Distance, unit: meter');grid on
 % % 
 figure
-scatter(t,output.rover_clk/p.c,'.')
+scatter(p.t,output.rover_clk/p.c,'.')
 title('Local bias')
 xlabel('Receiver time using GPS second');
 ylabel('Clock bias, seconds');grid on
@@ -75,13 +75,13 @@ ylabel('Clock bias, seconds');grid on
 
 figure
 subplot(311)
-scatter(t,output.ned_err(1,:),'.')
+scatter(p.t,output.ned_err(1,:),'.')
 title('North Error in NED');grid on;
 subplot(312)
-scatter(t,output.ned_err(2,:),'.')
+scatter(p.t,output.ned_err(2,:),'.')
 title('East Error in NED');grid on;
 subplot(313)
-scatter(t,output.ned_err(3,:),'.')
+scatter(p.t,output.ned_err(3,:),'.')
 title('Down Error in NED')
 xlabel('Receiver time using GPS second');grid on;
 % figure

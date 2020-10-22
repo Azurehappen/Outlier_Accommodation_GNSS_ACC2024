@@ -16,7 +16,7 @@ switch(data_num)
         obs_name = 'data202006/bdsgal';
         IGS_name = 'data202006/WHU01580.20C';
         USTEC_folderpath = 'data202006/USTEC';
-        code_bia = 'CAS0MGXRAP_2020291_OSB.BIA';
+        code_bia = [];
         data_base = [];
         Grdpos = [-2430696.646;-4704190.763;3544329.081];
 end
