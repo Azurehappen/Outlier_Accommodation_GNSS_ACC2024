@@ -54,12 +54,12 @@ if p.post_mode==2 && ~isempty(data_base)
     matname = [data_base '_obs.mat'];
     if exist(matname,'file')==2 % Check if the data already been parsed
         load(matname);
-        p.obs_b = obs_b;
+        p.obs_b = obs;
     else
         % Get observables data (.obs file, RINEX verion 3.03)
         obs_b = parser_obs(obsname);
         save ([data_base,'_obs.mat'], 'obs_b');
-        p.obs_b = obs_b;
+        p.obs_b = obs;
     end
 end
 

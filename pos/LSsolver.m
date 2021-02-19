@@ -18,7 +18,7 @@ end
 % if p.mk == 1
 %     xk = [xk;0]; %Add Iono factor term for PPP
 % end
-for iter=1:p.Nls
+% for iter=1:p.Nls
     for j=1:num
     R(j)=norm(s_pos_ecef(:,j)-xk(1:3));
     V= (xk(1:3)-s_pos_ecef(:,j))'/R(j)+...
@@ -41,14 +41,14 @@ for iter=1:p.Nls
 %     end
 delta_x = (H_os'*H_os)^(-1)*H_os'*(res);
 xk=xk+delta_x; 
-if (norm(delta_x) < p.LSthrsh)
-     break;
-end 
-if (iter>p.Nls)&& (norm(delta_x) > p.LSthrsh)
-     warning('Postion path length iteration failed in user_pos calculation');
-end  
+% if (norm(delta_x) < p.LSthrsh)
+%      break;
+% end 
+% if (iter>p.Nls)&& (norm(delta_x) > p.LSthrsh)
+%      warning('Postion path length iteration failed in user_pos calculation');
+% end  
 
-end
+% end
 % pos = xk(1:3);
 % clock_bias = xk(4);
 GDOP = sqrt(trace((H_os'*H_os)^(-1)));

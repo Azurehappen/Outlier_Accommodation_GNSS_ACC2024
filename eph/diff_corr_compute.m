@@ -18,27 +18,27 @@ for i = 1:length(cpt.corr_range)
     obstr_B = p.obs_b.tr_sow(tridx);
     switch sys_type
         case 1
-            pseR = p.obs_b.GPS.P1(prn,tridx);
-            Strength = p.obs_b.GPS.S1(prn,tridx);
+            pseR = p.obs_b.GPS(1).data.P(prn,tridx);
+            Strength = p.obs_b.GPS(1).data.S(prn,tridx);
             message_duration = p.gps.message_duration;
-            eph_info = p.eph_b.gps;
+            eph_info = p.eph_b.GPS;
         case 2
-            pseR = p.obs_b.GLO.P1(prn,tridx);
-            Strength = p.obs_b.GLO.S1(prn,tridx);
+            pseR = p.obs_b.GLO(1).data.P(prn,tridx);
+            Strength = p.obs_b.GLO(1).data.S(prn,tridx);
             message_duration = p.glo.message_duration;
-            eph_info = p.eph_b.glo;
+            eph_info = p.eph_b.GLO;
             obstr_B = time_shift(obstr_B - p.glo.lps_gps);% Correct time diff from GPS time to GLO time
         case 3
-            pseR = p.obs_b.GAL.P1(prn,tridx);
-            Strength = p.obs_b.GAL.S1(prn,tridx);
+            pseR = p.obs_b.GAL(1).data.P(prn,tridx);
+            Strength = p.obs_b.GAL(1).data.S(prn,tridx);
             message_duration = p.gal.message_duration;
-            eph_info = p.eph_b.gal;
+            eph_info = p.eph_b.GAL;
             obstr_B = time_shift(obstr_B - p.gal.lps_gps);% Correct time diff from GPS time to GAL time
         case 4
-            pseR = p.obs_b.BDS.P1(prn,tridx);
-            Strength = p.obs_b.BDS.S1(prn,tridx);
+            pseR = p.obs_b.BDS(1).data.P(prn,tridx);
+            Strength = p.obs_b.BDS(1).data.S(prn,tridx);
             message_duration = p.bds.message_duration;
-            eph_info = p.eph_b.bds;
+            eph_info = p.eph_b.BDS;
             obstr_B = time_shift(obstr_B - p.bds.lps_gps);% Correct time diff from GPS time to BDS time
     end
     if (pseR~=0)&&(~isnan(pseR)) && prn<=size(eph_info.t_oc,1)

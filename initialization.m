@@ -80,7 +80,7 @@ else
     % This constant need to be manually changed if Leap seconds change.
     p.gpstime_ahead = 18;
 end
-p.Re        = 6378136.3; %%%% radius of earth in m
+p.Re        = 6378136.3; %%%% radius of earth in m  
 p.h_iono    = 350000;    %%%% height of ionosphere of maximum TEC
 % Earth model
 p.g = 9.80665;                    % standard gravity

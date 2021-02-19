@@ -12,8 +12,8 @@ addpath('pos')
 addpath('corr')
 %--------------------------------%
 % Pick the Data Number
-initpath = 'data/';
-data_num = 1;
+initpath = 'data/DGNSS_Moving/';
+data_num = 3;
 [eph_name,obs_name,IGS_name,data_base,code_bia,Grdpos,USTEC_folderpath] = datapathload(data_num,initpath);
 %--------------------------------%
 
@@ -23,15 +23,15 @@ data_num = 1;
 % obs.BDS.P1(18,:) = 0;
 % Mode setting
 p.run_mode = 0;
-p.post_mode  = 1; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
+p.post_mode  = 2; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
 p.VRS_mode = 0;
 p.IGS_enable = 1;
 p.double_diff = 0;
 p.elev_mark  = 15*pi/180;
 p.enableGPS  = 1; % Enable GPS: 1 means enable, 0 means close
 p.enableGLO  = 0; % Enable GLO: 1 means enable, 0 means close
-p.enableGAL  = 1; % Enable GAL: 1 means enable, 0 means close
-p.enableBDS  = 1; % Enable BDS: 1 means enable, 0 means close
+p.enableGAL  = 0; % Enable GAL: 1 means enable, 0 means close
+p.enableBDS  = 0; % Enable BDS: 1 means enable, 0 means close
 p.inval = 1; % Computation time interval
 p.tec_tmax = 15;
 p.tec_tmin = 0;

@@ -21,7 +21,7 @@ for i = 1:len
     if p.lon <= 0
         longitude = -p.lon;
     else
-        longitude = -p.lon + 2*pi;        
+        longitude = -p.lon + 2*pi;     
     end        
     % tropo delay (meter) computation using IGGTrop model
     % Reference Paper: IGGtrop_SH & IGGtrop_rH: Two Improved Empirical

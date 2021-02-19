@@ -1,17 +1,17 @@
-function [log,state] = save_result(p,cpt,log,i,re_pos,clk_b,res)
+function [log,state] = save_result(p,cpt,log,i,re_pos,clk_b,res,grdpos)
 
 log.pos_ecef(:,i) = re_pos;
 state = [re_pos;clk_b];
 %------------------------%
 [pos_llh,~,~]=ecef2llh_iter(re_pos);
 R_e2g=ll2R(pos_llh); % rotation matrix from ecef 2 geodetic frame
-err_pos = p.Grdpos - re_pos;
+err_pos = grdpos - re_pos;
 ned_err=R_e2g*err_pos;
 log.ned_err(:,i) = ned_err;
 %------------------------%
 log.ned_err_norm(i) = norm(ned_err);
 log.hor_err(i) = norm(ned_err(1:2));
-log.err(i) = norm(p.Grdpos - re_pos);
+log.err(i) = norm(grdpos - re_pos);
 log.rover_clk(i) = clk_b;
 log.sv_num_GPS(i) = cpt.num_sv(1);log.sv_num_GLO(i) = cpt.num_sv(2);
 log.sv_num_GAL(i) = cpt.num_sv(3);log.sv_num_BDS(i) = cpt.num_sv(4);
