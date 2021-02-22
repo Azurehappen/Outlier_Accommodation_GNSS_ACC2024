@@ -55,8 +55,8 @@ if st.Day ~= et.Day || days(et-st)>1
                 Year = string(tt,'yyyy'); Mon = string(tt,'MM');
                 Day = string(tt,'dd');
                 url = "https://www.ngdc.noaa.gov/stp/IONO/USTEC/products/" + Year + "/"...
-                        + Mon + "/" + Day + "/" + string(t,'yyyyMMddhhmm') + "_TEC.txt";
-                file = load_path + string(t,'yyyyMMddhhmm') + "_TEC.txt";
+                        + Mon + "/" + Day + "/" + string(t,'yyyyMMddHHmm') + "_TEC.txt";
+                file = load_path + string(t,'yyyyMMddHHmm') + "_TEC.txt";
                 websave(file,url);
             end
         end
@@ -66,8 +66,8 @@ else
         Year = string(t,'yyyy'); Mon = string(t,'MM');
         Day = string(t,'dd');
         url = "https://www.ngdc.noaa.gov/stp/IONO/USTEC/products/" + Year + "/"...
-            + Mon + "/" + Day + "/" + string(t,'yyyyMMddhhmm') + "_TEC.txt";
-        file = load_path + string(t,'yyyyMMddhhmm') + "_TEC.txt";
+            + Mon + "/" + Day + "/" + string(t,'yyyyMMddHHmm') + "_TEC.txt";
+        file = load_path + string(t,'yyyyMMddHHmm') + "_TEC.txt";
         if exist(file,'file')~=2
             websave(file,url);
         end
