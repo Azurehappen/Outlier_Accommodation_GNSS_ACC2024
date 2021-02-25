@@ -12,8 +12,13 @@ function eph = parser_nav(p,navpath)
 % Class of constellation ephemeris
 %
 % Author: Azurehappen
-
-fprintf ('Loading ephemeris...\n \n');
+[~,~,ext] = fileparts(navpath);
+if ext == ".rnx" || ext == ".obs" || ext == ".nav"
+    flag = 1;
+    fprintf ('Loading ephemeris...\n \n');
+else
+    fprintf ('File format not supported. Please input a RINEX file\n');
+end
 navfile = fopen(navpath);
 %----------------------------------------------------%
 % Initialize variables
@@ -168,7 +173,7 @@ while ~feof(navfile)
             GLO.prn_avb(prn,1)=1;
             rcount(1,r)=prn;
             indx = sum(rcount==prn);
-            tget = datetime(tget); % GPS has 18 seconds ahead of UTC
+            tget = datetime(tget)+seconds(18); % GPS has 18 seconds ahead of UTC
             tget = [tget.Year,tget.Month,tget.Day,tget.Hour,tget.Minute,tget.Second];
             [~,~,GLO.t_oc{prn}(indx)] = date2gpst(tget); % Represent GLO time by GPS time
             data = sscanf(line(24:end),'%f');
@@ -200,7 +205,7 @@ while ~feof(navfile)
             ccount(1,c)=prn;
             indx = sum(ccount==prn);
             tget = str2double(strsplit(line(5:23)));
-            tget = datetime(tget); % seconds diff from GPS time to BDS time
+            tget = datetime(tget)+seconds(14); % seconds diff from GPS time to BDS time
             tget = [tget.Year,tget.Month,tget.Day,tget.Hour,tget.Minute,tget.Second];
             [~,~,BDS.t_oc{prn}(indx)] = date2gpst(tget); % Represent BDS time by GPS time
             data = sscanf(line(24:end),'%f');
@@ -221,7 +226,7 @@ while ~feof(navfile)
             BDS.sqrtA(prn,indx) = data(4); % sqrt(A) (sqrt(m)) 
             
             data = sscanf(fgetl(navfile),'%f'); 
-            BDS.t_oe(prn,indx) = data(1); % Toe Time of Ephemeris (GPS sec of BDS week)
+            BDS.t_oe(prn,indx) = data(1); % Toe Time of Ephemeris (sec of BDS week)
             BDS.IODE(prn,indx) = mod(floor(data(1)/720),240);
             BDS.C_ic(prn,indx) = data(2); % Cic (radians)
             BDS.Omega_0(prn,indx) = data(3); % OMEGA0 (radians)

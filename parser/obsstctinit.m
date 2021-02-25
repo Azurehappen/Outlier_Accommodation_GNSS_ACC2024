@@ -1,6 +1,6 @@
 function obs = obsstctinit(num)
 MAXPRNGPS = 32; MAXPRNGLO = 27;
-MAXPRNGAL = 36; MAXPRNBDS = 59;
+MAXPRNGAL = 36; MAXPRNBDS = 64;
 % Initialize obs struct
     obs.GPS = struct;obs.GAL = struct;obs.GLO = struct;obs.BDS = struct;
     obs.GPS(1).type = 'L1 C/A';   obs.GPS(2).type = 'L2';

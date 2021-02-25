@@ -75,7 +75,7 @@ for i = 1:p.inval:N
             continue;
         end
     else
-        grdpos = p.Grdpos.pos
+        grdpos = p.Grdpos.pos;
     end
     if mod(i,4000)==0
         i
@@ -192,7 +192,7 @@ for i = 1:p.inval:N
                         cpt.corr_range = cpt.corr_range - cpt.diff_corr;
                         [re_pos,clock_bias,res] = userpos(p,cpt);
                         if ~isempty(re_pos)
-                            [log,p.state0] = save_result(p,cpt,log,i,re_pos,clock_bias,res);
+                            [log,p.state0] = save_result(p,cpt,log,i,re_pos,clock_bias,res,grdpos);
                         end
                     end
                 otherwise

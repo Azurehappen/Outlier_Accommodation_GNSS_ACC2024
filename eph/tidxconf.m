@@ -73,7 +73,7 @@ if p.post_mode == 1 && ~isempty(p.IGS) && p.IGS_enable == 1
         pos_tage = 0;
         
     end
-    cb_i = find(limit_tgps(t_sv - p.IGS.cdb_iTOW)>=0);
+%     cb_i = find(limit_tgps(t_sv - p.IGS.cdb_iTOW)>=0);
     if pos_tage == 1
         switch sys_type
             case 'GPS'
@@ -86,7 +86,7 @@ if p.post_mode == 1 && ~isempty(p.IGS) && p.IGS_enable == 1
 %                 end
             case 'GLO'
                 IGSdata = p.IGS.GLO;
-                icb = p.icb_glo;
+                icb = p.code_bia.GLO.bia_C1C;
             case 'GAL'
                 IGSdata = p.IGS.GAL;
                 icb = p.code_bia.GAL.bia_C1C;

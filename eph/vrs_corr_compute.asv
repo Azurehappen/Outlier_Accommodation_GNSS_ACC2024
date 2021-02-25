@@ -6,31 +6,17 @@ load geoid;
 N = ltln2val(geoid, geoidrefvec, p.lat*180/pi, p.lon*180/pi);
 %%%%% orthometric height of the receiver (Groves 2.121)
 H_r=p.h_r-N;
+eph_info = eph.GPS;
 vrs_psedR = NaN(length(cpt.corr_range),1);
 diff_corr = NaN(length(cpt.corr_range),1);
-sys_i = find(cpt.svprn_mark~=0);
-obs = [];
+SYS_i = find(cpt.svprn_mark~=0);
+% obs.GPS.f1 = 'L1';
 for i = 1:length(cpt.corr_range)
-    sys = cpt.svprn_mark(sys_i(i));
-    switch sys
-        case 1
-            eph_info = eph.GPS;
-            sys = 'GPS';
-        case 2
-            eph_info = eph.GLO;
-            sys = 'GLO';
-        case 3
-            eph_info = eph.GAL;
-            sys = 'GAL';
-        case 4
-            eph_info = eph.BDS;
-            sys = 'BDS';
-    end
-    prn = cpt.prn_record(sys_i(i));
+    prn = prn_i(i);
     tidx = ephtidx(eph_info.t_oc{prn},rt.sow,eph_info.SV_health(prn,:),p.gps.message_duration);
     p.post_mode = 1;p.IGS_enable = 1;
     if ~isempty(tidx)
-        [tp,dt_sv,sat] = inverse_eph(p,eph_info,obs,prn,tidx,rt.sow,sys,p.P_base);
+        [tp,dt_sv,sat] = inverse_eph(p,eph_info,obs,prn,tidx,rt.sow,'GPS',p.P_base);
         if ~isnan(tp)
 %             theta = p.omge * (tp+dt_sv);
 %             R = [ cos(theta)  sin(theta)  0;   
@@ -39,7 +25,7 @@ for i = 1:length(cpt.corr_range)
 %             sat_pos_Rcorr = R*sat.pos_prc;
 %             sat_ecef_Rcorr = R*sat.pos_ecef;
             [trop_delay, ~, ~, ~, ~]=UNB3M(p.lat,H_r,tdoy,cpt.elev(i));
-            [iono_delay] = ustec_iono_delay_computation(p,p.USTEC,cpt.elev(i),cpt.az(i),rt,p.L1freq);
+            [iono_delay,~] = ustec_iono_delay_computation(p,p.USTEC,cpt.elev(i),cpt.az(i),rt,p.L1freq);
             vrs_psedR(i) = norm(p.P_base-sat.pos_prc)+sagnac(p,sat.pos_prc,p.P_base)-dt_sv*p.c+trop_delay+iono_delay;
         end        
     end
@@ -47,7 +33,7 @@ for i = 1:length(cpt.corr_range)
         p.post_mode = 0;p.IGS_enable = 0;
         tidx = ephtidx(eph_info.t_oc{prn},rt.sow,eph_info.SV_health(prn,:),p.gps.message_duration);
         t_sv = rt.sow - vrs_psedR(i)/p.c;
-        [sat, dt_sv] = eph2pos(p,eph_info,obs,prn,tidx,t_sv,sys);
+        [sat, dt_sv] = eph2pos(p,eph_info,obs,prn,tidx,t_sv,'GPS');
         range = norm(p.P_base-sat.pos_ecef)+sagnac(p,sat.pos_ecef,p.P_base);
         diff_corr(i) = vrs_psedR(i) + p.c*dt_sv - range;
     end

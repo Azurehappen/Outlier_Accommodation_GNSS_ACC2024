@@ -50,7 +50,7 @@ function [r_ecef, v_ecef, E_k] = sat_posvel(p, eph, tm, prn, tidx,sys_type)
     x_k_prime = r_k*cuk;
     y_k_prime = r_k*suk;
 
-    if strcmp('BDS',sys_type)&& (prn<=5 || prn == 18 )
+    if strcmp('BDS',sys_type)&& (prn<=5 || prn == 18 || prn>=59)
         % corrected longitude of ascending node (rad)
         Omega_k = eph.Omega_0(prn,tidx) + eph.OmegaDot(prn,tidx)*t_k - p.OmegaDot_e*eph.t_oe(prn,tidx);
         sOmeg = sin(Omega_k);

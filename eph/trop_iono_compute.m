@@ -14,21 +14,21 @@ len = length(cpt.corr_range);
 ind_prn = find(cpt.svprn_mark~=0);
 for i = 1:len    
     % tropo delay (meter) computation using UNB3M model
-%     [cpt.trop_delay(i), ~, ~, ~, cpt.IoFac(i)]=UNB3M(p.lat,H_r,tdoy,cpt.elev(i));
-    
-    % ecef2llh longitude range is [-pi,+pi] but IGGTrop takes longitude input
-    % range is [0,2pi]. This mapping is done here.
-    if p.lon <= 0
-        longitude = -p.lon;
-    else
-        longitude = -p.lon + 2*pi;     
-    end        
-    % tropo delay (meter) computation using IGGTrop model
-    % Reference Paper: IGGtrop_SH & IGGtrop_rH: Two Improved Empirical
-    % Tropospheric Delay Models Based on Vertical Reduction Functions 
-    IGGtrop_ZenithTropDelay = IGGtropSH_bl(rad2deg(longitude),rad2deg(p.lat),H_r/1000,tdoy);
-    cpt.trop_delay(i) = (1.001/sqrt(0.002001 + sin(cpt.elev(i))^2))*IGGtrop_ZenithTropDelay;
-    
+    [cpt.trop_delay(i), ~, ~, ~, cpt.IoFac(i)]=UNB3M(p.lat,H_r,tdoy,cpt.elev(i));
+%-----------------------------------%    
+%     % ecef2llh longitude range is [-pi,+pi] but IGGTrop takes longitude input
+%     % range is [0,2pi]. This mapping is done here.
+%     if p.lon <= 0
+%         longitude = -p.lon;
+%     else
+%         longitude = -p.lon + 2*pi;     
+%     end        
+%     % tropo delay (meter) computation using IGGTrop model
+%     % Reference Paper: IGGtrop_SH & IGGtrop_rH: Two Improved Empirical
+%     % Tropospheric Delay Models Based on Vertical Reduction Functions 
+%     IGGtrop_ZenithTropDelay = IGGtropSH_bl(rad2deg(longitude),rad2deg(p.lat),H_r/1000,tdoy);
+%     cpt.trop_delay(i) = (1.001/sqrt(0.002001 + sin(cpt.elev(i))^2))*IGGtrop_ZenithTropDelay;
+%-----------------------------------%    
     % Iono data from USTEC: https://www.ngdc.noaa.gov/stp/iono/ustec/products/    
     %---------------------------%
     % Select the frequncy

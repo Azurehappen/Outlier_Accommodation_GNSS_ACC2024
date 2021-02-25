@@ -64,6 +64,7 @@ switch sys_type
         % Currently RINEX 3.03 only provide info for B1, no B2a
         if p.post_mode == 1 && p.IGS_enable == 1
             group_delay = icb(prn)*1e-9;
+%             group_delay = eph.TGD1(prn,tidx);
         else
             group_delay = eph.TGD1(prn,tidx);
         end
@@ -93,6 +94,12 @@ Ek = p.Ek0;
 %     end    
 % end
 if p.post_mode == 1 && p.IGS_enable == 1
+    if strcmp(sys_type,'BDS')&&(prn<=5 || prn == 18 || prn>=59)
+        sat.pos_ecef = NaN(3,1); 
+        sat.v_ecef = NaN(3,1); 
+        sat.pos_prc = NaN(3,1);
+        return
+    end
     if icb(prn) == 0
         sat.pos_ecef = NaN(3,1); 
         sat.v_ecef = NaN(3,1); 
@@ -100,11 +107,7 @@ if p.post_mode == 1 && p.IGS_enable == 1
         return
     end
     dt_sv_p = sat_clock_precise(p,IGSdata,prn,clk_idx,tm);
-    if strcmp(sys_type,'GAL')
-        dt_sv = dt_sv + dt_sv_p;
-    else
-        dt_sv = dt_sv + dt_sv_p;% + icb(prn)*1e-9;
-    end
+    dt_sv = dt_sv + dt_sv_p;
     sat.pos_prc = sat_position_precise(p,IGSdata,sat.pos_ecef,sat.v_ecef,prn,obt_idx,tm);
 end
 % p.Ek0 = Ek; % To be a initial value at next obs.

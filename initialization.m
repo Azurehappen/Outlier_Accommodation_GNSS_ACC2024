@@ -15,7 +15,7 @@ p.bds.num_prn = 50; % The amoount of BDS satellites
 %----------------------%
 
 matname = [eph_name '_nav.mat'];
-navname = [eph_name '.nav'];
+navname = [eph_name];
 obsname = [obs_name '.obs'];
 if exist(matname,'file')==2 % Check if the data already been parsed
     load(matname);
@@ -42,7 +42,7 @@ p.post_mode = 1;%%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
 p.iono_map=0; %%%%% 0=USTEC; 1=IGS ionex
 p.ins=1;    %%%%%%% 0=no imu data; 1=use simulated/real imu data
 p.imu_freq=200; %%%%%% frequency rate for simulated/real IMU data
-p.P_base = [-2430697.667;-4704189.148;3544329.063]; % Base station position
+p.P_base = [-2430697.699;-4704189.201;3544329.103]; % Base station position
 p.Grdpos = Grdpos; % Ground truth of rover
 p.freq = 1; %%%% 1 = single frequency, 2 = dual frequency
 p.Ek0 = 0; % Initial condition of Ek
@@ -148,7 +148,7 @@ p.bds.num_prn = 40; % The amoount of BDS satellites
 p.bds.message_duration = 3600;
 % Measurement selection
 p.select = 0;
-
+p.bia_type = 0; % 0 means using CNE code bias
 %---------------------------------------%
 p.GPS_C1C = 1;p.GPS_C1W = 2;p.GPS_C2L = 3;p.GPS_C2W = 4;
 p.GLO_C1C = 1;p.GLO_C1P = 2;p.GLO_C2C = 3;p.GLO_C2P = 4;

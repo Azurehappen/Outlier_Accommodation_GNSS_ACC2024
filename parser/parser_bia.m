@@ -40,7 +40,10 @@ while ~feof(biafile)
         if contains(type,'C2I')
             bia.BDS.bia_C2I(prn,1) = str2double(line(val_i:val_i+8));
         end
-        if contains(type,'C7I')
+        if contains(type,'C7I') && prn <= 18
+            bia.BDS.bia_C7I(prn,1) = str2double(line(val_i:val_i+8));
+        end
+        if contains(type,'C7Z') && prn > 18
             bia.BDS.bia_C7I(prn,1) = str2double(line(val_i:val_i+8));
         end
     end
