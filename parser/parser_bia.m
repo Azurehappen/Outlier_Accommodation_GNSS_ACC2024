@@ -1,4 +1,4 @@
-function bia = parser_bia(biapath)
+function bia = parser_bia(p,biapath)
 % Parse code bias data from OSR bia file to matlab data file.
 % GPS/GLO/BDS system can also be obtained from CNES SSR data
 biafile = fopen(biapath);
@@ -12,6 +12,12 @@ end
 PRN_i = strfind(line,'PRN');
 type_i = strfind(line,'OBS1');
 val_i = strfind(line,'VALUE____');
+bia.GPS.bia_C1C = zeros(p.gps.num_prn,1);
+bia.GPS.bia_C2L = zeros(p.gps.num_prn,1);
+bia.GAL.bia_C1C = zeros(p.gal.num_prn,1);
+bia.GAL.bia_C7Q = zeros(p.gal.num_prn,1);
+bia.BDS.bia_C2I = zeros(p.bds.num_prn,1);
+bia.BDS.bia_C7I = zeros(p.bds.num_prn,1);
 while ~feof(biafile)
     line = fgetl(biafile);
     if strcmp(line(PRN_i),'G')

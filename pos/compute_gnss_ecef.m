@@ -187,6 +187,7 @@ for i = 1:p.inval:N
                 case 3 % VRS
                     tdoy = doy(obs.tr_prime(1:3,i)); % Day of year
                     [rt.week, rt.dow, rt.sow] = date2gnsst(obs.tr_prime(:,i)');
+                    rt.sow = round(rt.sow);
                     cpt = vrs_corr_compute(p,cpt,eph,tdoy,rt);
                     if length(cpt.corr_range)>=p.min_sv
                         cpt.corr_range = cpt.corr_range - cpt.diff_corr;

@@ -11,20 +11,22 @@ diff_corr = NaN(length(cpt.corr_range),1);
 sys_i = find(cpt.svprn_mark~=0);
 obs = [];
 for i = 1:length(cpt.corr_range)
-    sys = cpt.svprn_mark(sys_i(i));
-    switch sys
+    sys_num = cpt.svprn_mark(sys_i(i));
+    switch sys_num
         case 1
             eph_info = eph.GPS;
             sys = 'GPS';
         case 2
             eph_info = eph.GLO;
             sys = 'GLO';
+            rt.sow = time_shift(rt.sow - p.glo.lps_gps);
         case 3
             eph_info = eph.GAL;
             sys = 'GAL';
         case 4
             eph_info = eph.BDS;
-            sys = 'BDS';
+            sys  = 'BDS';
+            rt.sow = time_shift(rt.sow - p.bds.lps_gps);
     end
     prn = cpt.prn_record(sys_i(i));
     tidx = ephtidx(eph_info.t_oc{prn},rt.sow,eph_info.SV_health(prn,:),p.gps.message_duration);
@@ -41,6 +43,9 @@ for i = 1:length(cpt.corr_range)
             [trop_delay, ~, ~, ~, ~]=UNB3M(p.lat,H_r,tdoy,cpt.elev(i));
             [iono_delay] = ustec_iono_delay_computation(p,p.USTEC,cpt.elev(i),cpt.az(i),rt,p.L1freq);
             vrs_psedR(i) = norm(p.P_base-sat.pos_prc)+sagnac(p,sat.pos_prc,p.P_base)-dt_sv*p.c+trop_delay+iono_delay;
+        else
+            vrs_psedR(i) = NaN;
+            cpt.num_sv(sys_num) = cpt.num_sv(sys_num)-1;
         end        
     end
     if ~isnan(vrs_psedR(i))
@@ -54,20 +59,21 @@ for i = 1:length(cpt.corr_range)
 end
 % Delete the data that has no diff correction
 del_ind = find(isnan(diff_corr));
+
 if ~isempty(del_ind)
     ind_prn = find(cpt.prn_record~=0);
     cpt.prn_record(ind_prn(del_ind))=0;
     cpt.svprn_mark(ind_prn(del_ind))=0;
-diff_corr(del_ind) = [];
-cpt.corr_range(del_ind) = [];
-cpt.s_pos_ecef(:,del_ind) = [];
-cpt.s_v_ecef(:,del_ind) = [];
-cpt.tp(del_ind) = [];
-cpt.elev(del_ind) = [];
-cpt.az(del_ind) = [];
-cpt.sat_pos_Rcorr(:,del_ind) = [];
-cpt.sat_posprc_Rcorr(:,del_ind) = [];
-cpt.sat_v_Rcorr(:,del_ind) = [];
+    diff_corr(del_ind) = [];
+    cpt.corr_range(del_ind) = [];
+    cpt.s_pos_ecef(:,del_ind) = [];
+    cpt.s_v_ecef(:,del_ind) = [];
+    cpt.tp(del_ind) = [];
+    cpt.elev(del_ind) = [];
+    cpt.az(del_ind) = [];
+    cpt.sat_pos_Rcorr(:,del_ind) = [];
+    cpt.sat_posprc_Rcorr(:,del_ind) = [];
+    cpt.sat_v_Rcorr(:,del_ind) = [];
 end
 cpt.diff_corr = diff_corr;
 

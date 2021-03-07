@@ -135,10 +135,16 @@ while ~feof(obsfile)
                         switch(gpstype{i}(1))
                             case 'C' % Psedorange
                                 if strcmp(gpstype{i},'C1C')
-                                    obs.GPS(1).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    val=str2double(line(idx:idx+len));
+                                    if ~isnan(val)
+                                        obs.GPS(1).data.P(prn,count)=val;
+                                    end
                                     idx = idx + len;
-                                elseif strcmp(gpstype{i},'C2L')||strcmp(gpstype{i},'C2S')||strcmp(gpstype{i},'C2X')
-                                    obs.GPS(2).data.P(prn,count)=str2double(line(idx:idx+len));
+                                elseif strcmp(gpstype{i},'C2L')
+                                    val = str2double(line(idx:idx+len));
+                                    if ~isnan(val)
+                                        obs.GPS(2).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    end
                                     idx = idx + len;
                                 elseif strcmp(gpstype{i},'C1W')
                                     obs.GPS(3).data.P(prn,count)=str2double(line(idx:idx+len));
@@ -153,7 +159,7 @@ while ~feof(obsfile)
                                 if strcmp(gpstype{i},'L1C')
                                     obs.GPS(1).data.C(prn,count)=str2double(line(idx:idx+len));
                                     idx = idx + len;
-                                elseif strcmp(gpstype{i},'L2L')||strcmp(gpstype{i},'L2S')||strcmp(gpstype{i},'L2X')
+                                elseif strcmp(gpstype{i},'L2L')
                                     obs.GPS(2).data.C(prn,count)=str2double(line(idx:idx+len));
                                     idx = idx + len;
                                 elseif strcmp(gpstype{i},'L1W')
@@ -169,7 +175,7 @@ while ~feof(obsfile)
                                 if strcmp(gpstype{i},'D1C')
                                     obs.GPS(1).data.D(prn,count)=str2double(line(idx:idx+len));
                                     idx = idx + len;
-                                elseif strcmp(gpstype{i},'D2L')||strcmp(gpstype{i},'D2S')||strcmp(gpstype{i},'D2X')
+                                elseif strcmp(gpstype{i},'D2L')
                                     obs.GPS(2).data.D(prn,count)=str2double(line(idx:idx+len));
                                     idx = idx + len;
                                 elseif strcmp(gpstype{i},'D1W')
@@ -185,7 +191,7 @@ while ~feof(obsfile)
                                 if strcmp(gpstype{i},'S1C')
                                     obs.GPS(1).data.S(prn,count)=str2double(line(idx:idx+len));
                                     idx = idx + len;
-                                elseif strcmp(gpstype{i},'S2L')||strcmp(gpstype{i},'S2S')||strcmp(gpstype{i},'S2X')
+                                elseif strcmp(gpstype{i},'S2L')
                                     obs.GPS(2).data.S(prn,count)=str2double(line(idx:idx+len));
                                     idx = idx + len;
                                 elseif strcmp(gpstype{i},'S1W')
@@ -210,10 +216,16 @@ while ~feof(obsfile)
                         switch(glotype{1}(1))
                             case 'C' % Psedorange
                                 if strcmp(glotype{i},'C1C')
-                                    obs.GLO(1).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    val=str2double(line(idx:idx+len));
+                                    if ~isnan(val)
+                                        obs.GLO(1).data.P(prn,count)=val;
+                                    end
                                     idx = idx + len;
                                 elseif strcmp(glotype{i},'C2C')
-                                    obs.GLO(2).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    val = str2double(line(idx:idx+len));
+                                    if ~isnan(val)
+                                        obs.GLO(2).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    end
                                     idx = idx + len;
                                 elseif strcmp(glotype{i},'C1P')
                                     obs.GLO(3).data.P(prn,count)=str2double(line(idx:idx+len));
@@ -285,10 +297,16 @@ while ~feof(obsfile)
                         switch(galtype{1}(1))
                             case 'C' % Psedorange
                                 if strcmp(galtype{i},'C1C')||strcmp(galtype{i},'C1X')
-                                    obs.GAL(1).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    val=str2double(line(idx:idx+len));
+                                    if ~isnan(val)
+                                        obs.GAL(1).data.P(prn,count)=val;
+                                    end
                                     idx = idx + len;
                                 elseif strcmp(galtype{i},'C7I')||strcmp(galtype{i},'C7Q')||strcmp(galtype{i},'C7X')
-                                    obs.GAL(2).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    val = str2double(line(idx:idx+len));
+                                    if ~isnan(val)
+                                        obs.GAL(2).data.P(prn,count)=val;
+                                    end
                                     idx = idx + len;
                                 else
                                     idx = idx + len;
@@ -336,10 +354,16 @@ while ~feof(obsfile)
                         switch(bdstype{1}(1))
                             case 'C' % Psedorange
                                 if strcmp(bdstype{i},'C2I')||strcmp(bdstype{i},'C2Q')||strcmp(bdstype{i},'C2X')
-                                    obs.BDS(1).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    val=str2double(line(idx:idx+len));
+                                    if ~isnan(val)
+                                        obs.BDS(1).data.P(prn,count)=val;
+                                    end
                                     idx = idx + len;
                                 elseif strcmp(bdstype{i},'C7I')||strcmp(bdstype{i},'C7Q')||strcmp(bdstype{i},'C7X')
-                                    obs.BDS(2).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    val = str2double(line(idx:idx+len));
+                                    if ~isnan(val)
+                                        obs.BDS(2).data.P(prn,count)=str2double(line(idx:idx+len));
+                                    end
                                     idx = idx + len;
                                 else
                                     idx = idx + len;

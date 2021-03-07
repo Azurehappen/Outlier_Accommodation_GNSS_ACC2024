@@ -32,9 +32,11 @@ for i = 1:len
     % Iono data from USTEC: https://www.ngdc.noaa.gov/stp/iono/ustec/products/    
     %---------------------------%
     % Select the frequncy
-    switch cpt.svprn_mark(ind_prn(i))
+    sysi = cpt.svprn_mark(ind_prn(i));
+    switch sysi
         case 1 % GPS
             freq = p.L1freq;
+            freq2 = p.L2freq;
 %             switch obs.GPS.f1
 %                 case 'L1'
 %                     freq = p.L1freq;
@@ -51,6 +53,7 @@ for i = 1:len
 %             end
         case 3 % GAL
             freq = p.E1freq;
+            freq2 = p.E5bfreq;
 %             switch obs.GAL.f1
 %                 case 'E1'
 %                     freq = p.E1freq;
@@ -59,6 +62,7 @@ for i = 1:len
 %             end
         case 4 % BDS
             freq = p.B1freq;
+            freq2 = p.B2afreq;
 %             switch obs.BDS.f1
 %                 case 'B1'
 %                     freq = p.B1freq;
@@ -67,14 +71,55 @@ for i = 1:len
 %             end
     end
     %---------------------------%
-    if ~isempty(ustec_i)
+    if p.L2enable == 1 && p.bia_type == 1
+        prn = cpt.prn_record(ind_prn(i));
+        switch sysi
+            case 1
+                iono = obs.Iono_GPS(prn,p.i);
+                if iono ~= 0
+                    cpt.iono_delay(i) = iono;
+                end
+            case 3
+                iono = obs.Iono_GAL(prn,p.i);
+                if iono ~= 0
+                    cpt.iono_delay(i) = iono;
+                end
+            case 4
+                iono = obs.Iono_BDS(prn,p.i);
+                if iono ~= 0
+                    cpt.iono_delay(i) = iono;
+                end
+        end
+        if isnan(cpt.iono_delay(i))
+            cpt.num_sv(sysi) = cpt.num_sv(sysi) - 1;
+            cpt.prn_record(ind_prn(i)) = 0;
+            cpt.svprn_mark(ind_prn(i)) = 0;
+        end
+    elseif ~isempty(ustec_i)
         % Computing Iono delay
-        [cpt.iono_delay(i)] = ustec_iono_delay_computation(p,ustec_i,cpt.elev(i),cpt.az(i),user_t,freq);
+        [cpt.iono_delay(i)] = ustec_iono_delay_computation(p,ustec_i,cpt.elev(i),cpt.az(i),user_t,freq);        
     else
         if ~isempty(eph.ionoParameters)
             [cpt.iono_delay(i)] = klobuchar_model(p,eph.ionoParameters,cpt.elev(i),cpt.az(i),user_t.sow);
         else
             cpt.iono_delay(i) = 0;
         end
-    end  
+    end
 end
+
+ind0 = find(isnan(cpt.iono_delay));
+cpt.corr_range(ind0) = [];
+cpt.s_pos_ecef(:,ind0) = [];
+if p.post_mode == 1
+    cpt.s_pos_prc(:,ind0) = [];
+    cpt.sat_posprc_Rcorr(:,ind0) = [];
+end
+cpt.s_v_ecef(:,ind0) = [];
+cpt.sat_pos_Rcorr(:,ind0) = [];
+cpt.sat_v_Rcorr(:,ind0) = [];
+cpt.tp(ind0) = [];
+cpt.elev(ind0) = [];
+cpt.az(ind0) = [];
+cpt.trop_delay(ind0) = [];
+cpt.iono_delay(ind0) = [];
+cpt.IoFac(ind0) = [];

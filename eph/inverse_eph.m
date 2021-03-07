@@ -9,8 +9,8 @@ function [tp,dt_sv,sat] = inverse_eph(p,eph,obs,prn,tidx,obs_tr,sys,re_pos)
 tp = 2.5e+07/p.c;
 for i = 1:40
     [sat, dt_sv] = eph2pos(p,eph,obs,prn,tidx,obs_tr-tp,sys);
-    if ~isnan(sat.pos_prc(1))
-    sat_pos = sat.pos_prc; sat_v = sat.v_ecef;
+    if ~isnan(sat.pos_ecef(1))
+    sat_pos = sat.pos_ecef; sat_v = sat.v_ecef;
     h = norm(re_pos - sat_pos)+sagnac(p,sat_pos,re_pos)-(tp+dt_sv)*p.c;
 %     ddt_sv = -eph.a_f1(prn,tidx)-2*eph.a_f2(prn,tidx)*limit_tgps(obs_tr-tp- eph.t_oc(prn,tidx));
 %     dh = -sum(sat_v)/norm(re_pos - sat_pos)-...

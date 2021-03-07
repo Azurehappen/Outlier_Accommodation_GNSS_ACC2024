@@ -173,7 +173,7 @@ while ~feof(navfile)
             GLO.prn_avb(prn,1)=1;
             rcount(1,r)=prn;
             indx = sum(rcount==prn);
-            tget = datetime(tget)+seconds(18); % GPS has 18 seconds ahead of UTC
+            tget = datetime(tget); % Time of broadcast, GLO time
             tget = [tget.Year,tget.Month,tget.Day,tget.Hour,tget.Minute,tget.Second];
             [~,~,GLO.t_oc{prn}(indx)] = date2gpst(tget); % Represent GLO time by GPS time
             data = sscanf(line(24:end),'%f');
@@ -205,7 +205,7 @@ while ~feof(navfile)
             ccount(1,c)=prn;
             indx = sum(ccount==prn);
             tget = str2double(strsplit(line(5:23)));
-            tget = datetime(tget)+seconds(14); % seconds diff from GPS time to BDS time
+            tget = datetime(tget); % Time of broadcast, BDS time
             tget = [tget.Year,tget.Month,tget.Day,tget.Hour,tget.Minute,tget.Second];
             [~,~,BDS.t_oc{prn}(indx)] = date2gpst(tget); % Represent BDS time by GPS time
             data = sscanf(line(24:end),'%f');

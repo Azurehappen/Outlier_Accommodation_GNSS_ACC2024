@@ -11,7 +11,7 @@ function [p,eph,obs,t] = initialization(eph_name,obs_name,Grdpos)
 p.gps.num_prn = 33; % The amoount of GPS satellites
 p.gal.num_prn = 38; % The amoount of GAL satellites
 p.glo.num_prn = 34; % The amoount of GLO satellites
-p.bds.num_prn = 50; % The amoount of BDS satellites
+p.bds.num_prn = 65; % The amoount of BDS satellites
 %----------------------%
 
 matname = [eph_name '_nav.mat'];
@@ -144,7 +144,6 @@ p.glo.message_duration = 1800; %54000;
 p.bds.mu = 3.986004418e+14; % Geocentric gravitational constant (m^3/s^2)
 p.bds.OmegaDot_e = 7.2921150e-5; % Earth's rotation rate
 p.bds.F = -2*sqrt(p.gal.mu)/(p.c^2); % BeiDou-ICD page 58
-p.bds.num_prn = 40; % The amoount of BDS satellites
 p.bds.message_duration = 3600;
 % Measurement selection
 p.select = 0;
@@ -153,6 +152,6 @@ p.bia_type = 0; % 0 means using CNE code bias
 p.GPS_C1C = 1;p.GPS_C1W = 2;p.GPS_C2L = 3;p.GPS_C2W = 4;
 p.GLO_C1C = 1;p.GLO_C1P = 2;p.GLO_C2C = 3;p.GLO_C2P = 4;
 p.GAL_C1X = 1;p.GAL_C7X = 2;
-P.BDS_C2I = 1;p.BDS_C7I = 2;
+p.BDS_C2I = 1;p.BDS_C7I = 2;
 
 end

@@ -37,7 +37,7 @@ To check the the name corresponding to which data center, see http://www.igs.org
 Debug notes: when implement PPP, some time duration has no IGS data correspond since IDOE not mathch
 Checked tidx = tidx(abs(dtr)==min(abs(dtr))); in satpost_corrpsedR_singlefreq.m, it not exclude the postive value in dtr. Now fixed.
 
-IONEX DATA from ftp://cddis.nasa.gov/gnss/products/ionex/
+IONEX DATA from http://cddis.nasa.gov/gnss/products/ionex/
 Some data have DCB information, like ehrg0620
 
 DCB： ftp://ftp.aiub.unibe.ch/CODE/2020/

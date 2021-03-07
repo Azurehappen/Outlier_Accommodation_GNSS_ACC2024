@@ -13,7 +13,7 @@ addpath('corr')
 %--------------------------------%
 % Pick the Data Number
 initpath = 'data/';
-data_num = 6;
+data_num = 3;
 [eph_name,obs_name,IGS_name,data_base,code_bia,Grdpos,USTEC] = datapathload(data_num,initpath);
 %--------------------------------%
 
@@ -23,28 +23,23 @@ data_num = 6;
 % obs.BDS.P1(18,:) = 0;
 % Mode setting
 p.run_mode = 0;
-p.post_mode  = 3; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
+p.post_mode  = 2; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
 p.VRS_mode = 1;
 p.IGS_enable = 1;
 p.double_diff = 0;
 p.elev_mark  = 15*pi/180;
 p.enableGPS  = 1; % Enable GPS: 1 means enable, 0 means close
 p.enableGLO  = 0; % Enable GLO: 1 means enable, 0 means close
-p.enableGAL  = 0; % Enable GAL: 1 means enable, 0 means close
+p.enableGAL  = 1; % Enable GAL: 1 means enable, 0 means close
 p.enableBDS  = 1; % Enable BDS: 1 means enable, 0 means close
-p.inval = 10; % Computation time interval
+p.inval = 1; % Computation time interval
 p.tec_tmax = 15;
 p.tec_tmin = 0;
+p.L2enable = 1;
 %--------------------------------%
-p = load_PPP_corr(p,data_base,IGS_name,eph,USTEC);
-if ~isempty(code_bia)
-    p.code_bia = parser_bia(code_bia);
-    p.bia_type = 1;
-end
+[p,obs] = load_PPP_corr(p,data_base,IGS_name,eph,obs,USTEC,code_bia);
 %-------------%
 output = compute_gnss_ecef(p,eph,obs);
-% p.min_sv = 6;
-% output = compute_gnss_rcvr(p,eph,obs);
 
 %%
 figure
