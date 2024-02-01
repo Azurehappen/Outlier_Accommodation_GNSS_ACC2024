@@ -1,4 +1,4 @@
-function [iono_delay]=ustec_iono_delay_computation(p,ustec_i,elev,az,user_t,freq)
+function [iono_delay, mapping_m]=ustec_iono_delay_computation(p,ustec_i,elev,az,user_t,freq)
 %%%% input:
 %%%% p: parameters
 %%%% ustec_i: USTEC map
@@ -74,7 +74,7 @@ if ~isempty(iono_map_idx)
 m=(p.Re*cos(elev)/(p.Re+p.h_iono));
 
 %%%%%% pierce point calculation
-[lat_p,lon_p]=pierce_point_calc(p.lat,p.lon,az,elev,p);
+[lat_p,lon_p]=pierce_point_calc(deg2rad(p.lat_deg),deg2rad(p.lon_deg),az,elev,p);
 
 
 
@@ -146,6 +146,7 @@ log.vtec = vtec_pp/10;
 %%% get slant iono delay
 %    iono_delay=((40.3/(p.gps.L1*p.gps.L2))*stec_pp)*1e16;
 %iono_delay=((40.3/(freq)^2 + 5.6*10e7/(freq)^3)*stec_pp)*1e16;
-iono_delay=((40.3/(freq)^2)*stec_pp)*1e16;
+iono_delay=(40.3e16/(freq)^2)*stec_pp;
+mapping_m = mp_fact * 40.3e16 / (freq * freq);
 end
 

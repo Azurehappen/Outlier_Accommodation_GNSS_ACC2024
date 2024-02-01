@@ -6,7 +6,7 @@ function [satlog] = satpost_corrpsedR_singlefreq(p,eph,obs,ind,len_prn,sys_type)
 %       eph --ephemeris data
 %       obs --observables
 %       ind --index of observables data
-%       sys_type --The system that be computed, 'GPS', 'GAL', 'GLO' and 'BDS'
+%       sys_type --The system that be computed, 'gps', 'gal', 'glo' and 'bds'
 % Outpu:
 %       satlog.svprn_mark -- Mark the sat prn that be computed
 %       satlog.s_pos_ecef -- Satellite position in ECEF frame
@@ -19,74 +19,124 @@ satlog.s_pos_ecef = zeros(3,len_prn);
 satlog.s_pos_prc = zeros(3,len_prn);
 satlog.s_v_ecef = zeros(3,len_prn);
 satlog.corr_range = zeros(len_prn,1);
+satlog.phase_m = zeros(len_prn,1);
+satlog.wavelength = zeros(len_prn,1);
+satlog.doppler = zeros(len_prn,1);
 satlog.tp = zeros(len_prn,1);
-obs_tr = obs.tr_sow(ind);
-switch(sys_type)
-    case 'GPS'
-        obs_range = obs.GPS(1).data.P(:,ind);
-        Strength = obs.GPS(1).data.S(:,ind);
-        message_duration = p.gps.message_duration;
-        eph_info = eph.GPS;
-    case 'GLO'
-        obs_range = obs.GLO(1).data.P(:,ind);
-        Strength = obs.GLO(1).data.S(:,ind);
-        message_duration = p.glo.message_duration;
-        obs_tr = time_shift(obs_tr - p.glo.lps_gps); % Correct time diff from GPS time to GLO time
-        eph_info = eph.GLO;
-    case 'GAL'
-        obs_range = obs.GAL(1).data.P(:,ind);
-        Strength = obs.GAL(1).data.S(:,ind);
-        message_duration = p.gal.message_duration;
-        obs_tr = time_shift(obs_tr - p.gal.lps_gps); % Correct time diff from GPS time to GAL time
-        eph_info = eph.GAL;
-    case 'BDS'
-        obs_range = obs.BDS(1).data.P(:,ind);
-        Strength = obs.BDS(1).data.S(:,ind);
-        message_duration = p.bds.message_duration;
-        obs_tr = time_shift(obs_tr - p.bds.lps_gps); % Correct time diff from GPS time to BDS time
-        eph_info = eph.BDS;
+obs_tr_gps = obs.tr_posix(ind);
+obs_tr = obs_tr_gps;
+if p.post_mode == p.mode_ppp && ~isempty(p.orbit_dict) && ~isempty(p.clock_dict)
+    [~, orbit_single] = closestKeyAndValue(p.orbit_dict, obs_tr_gps, 0, 60);
+    if isempty(orbit_single)
+        satlog.num_sv = 0;
+        return;
+    end
 end
 
-for j = 1 :len_prn
-    if (obs_range(j)~=0)&&(~isnan(obs_range(j)))&& j<=size(eph_info.a_f0,1)
-        tp_prime = obs_range(j)/p.c;
-        t_sv = obs_tr-tp_prime;
-        tidx = ephtidx(eph_info.t_oc{j},t_sv,eph_info.SV_health(j,:),message_duration);
-        % Check the signal strength and sv health (health message o means ok)
-        if ~isempty(tidx) && Strength(j)>=p.sig_strg
-            switch(sys_type)
-                % compute ephemeris to satellite position and clock bias
-                case 'GPS'
-                    [sat, dt_sv] = eph2pos(p,eph_info,obs,j,tidx,t_sv,'GPS');
-                    if ~isnan(sat.pos_ecef(1))
-                        satlog.svprn_mark(j) = 1;satlog.prn_record(j) = j;
-                    end
-                case 'GLO'
-                    [sat, dt_sv] = geph2pos(p,eph_info,j,tidx,t_sv,'GLO');
-                    if ~isnan(sat.pos_ecef(1))
-                        satlog.svprn_mark(j) = 2;satlog.prn_record(j) = j;
-                    end
-                 case 'GAL'
-                    [sat, dt_sv] = eph2pos(p,eph_info,obs,j,tidx,t_sv,'GAL');
-                    if ~isnan(sat.pos_ecef(1))
-                        satlog.svprn_mark(j) = 3;satlog.prn_record(j) = j;
-                    end
-                case 'BDS'
-                    [sat, dt_sv] = eph2pos(p,eph_info,obs,j,tidx,t_sv,'BDS'); 
-                    if ~isnan(sat.pos_ecef(1))
-                        satlog.svprn_mark(j) = 4;satlog.prn_record(j) = j;
-                    end
-            end
-            if ~isnan(sat.pos_ecef(1))
-                satlog.tp(j) = tp_prime+dt_sv;
-                satlog.s_pos_ecef(:,j) = sat.pos_ecef;
-                satlog.s_v_ecef(:,j) = sat.v_ecef;
-                if p.post_mode == 1
-                    satlog.s_pos_prc(:,j) = sat.pos_prc;
-                end
-                satlog.corr_range(j) = obs_range(j)+p.c*dt_sv;
-            end
+obs_range = obs.(sys_type)(1).data.P(:,ind);
+doppler = obs.(sys_type)(1).data.D(:,ind);
+phase_cyc = obs.(sys_type)(1).data.C(:,ind);
+Strength = obs.(sys_type)(1).data.S(:,ind);
+eph_info = eph.(sys_type);
+
+switch(sys_type)
+    case 'gps'
+        message_duration = p.gps.message_duration;
+    case 'glo'
+        message_duration = p.glo.message_duration;
+        obs_tr = obs_tr_gps - p.glo.lps_gps; % Correct time diff from GPS time to GLO time
+    case 'gal'
+        message_duration = p.gal.message_duration;
+        obs_tr = obs_tr_gps - p.gal.lps_gps; % Correct time diff from GPS time to GAL time
+    case 'bds'
+        message_duration = p.bds.message_duration;
+        obs_tr = obs_tr_gps - p.bds.lps_gps; % Correct time diff from GPS time to BDS time
+end
+
+for prn = 1 :len_prn
+    if p.post_mode == 1 && (~isfield(orbit_single, sys_type)...
+            || ~isKey(orbit_single.(sys_type), prn))
+        continue;
+    end
+    orbit_corr = [];
+    clock_corr_m = 0;
+    if p.post_mode == 1
+        orbit_corr = orbit_single.(sys_type)(prn);
+        clock_corr_m = obtainSatClockCorr(p.clock_dict, obs_tr_gps, 0, 60, prn, ...
+            orbit_corr.iod, sys_type);
+        if isnan(clock_corr_m)
+            continue;
         end
+    end
+
+    if obs_range(prn) == 0 || doppler(prn) == 0 ...
+        || isnan(obs_range(prn)) || prn>size(eph_info.SV_health,1)
+        continue;
+    end
+
+    if p.post_mode == p.mode_rtkfloat && phase_cyc(prn) == 0
+        continue;
+    end
+    doppler_i = doppler(prn);
+    phase_m = 0;
+    wavelength = 0;
+    tp_prime = obs_range(prn)/p.c;
+    t_sv = obs_tr-tp_prime;
+    tidx = ephtidx(eph_info,t_sv,prn,message_duration,sys_type,...
+        p.post_mode == p.mode_ppp);
+    % Check the signal strength and sv health (health message 0 means ok)
+    if isempty(tidx) || Strength(prn) < p.sig_strg
+        continue;
+    end
+
+    switch(sys_type)
+        % compute ephemeris to satellite position and clock bias
+        case 'gps'
+            [sat, dt_sv, ddt_sv] = eph2pos(p,eph_info,prn,tidx,t_sv,'gps',orbit_corr);
+            wavelength = p.gps.l1_wavelength;
+            doppler_i = -doppler_i*wavelength + p.c*ddt_sv;
+            phase_m = phase_cyc(prn)*wavelength + p.c*dt_sv;
+            if ~isnan(sat.pos_ecef(1))
+                satlog.svprn_mark(prn) = p.gps.sys_num;satlog.prn_record(prn) = prn;
+            end
+        case 'glo'
+            [sat, dt_sv, ddt_sv] = geph2pos(p,eph_info,prn,tidx,t_sv);
+            fcn = eph_info.freq(prn,tidx(end));
+            wavelength = p.c/(p.L1glo+p.glo.df1*fcn);
+            doppler_i = -doppler_i*wavelength + p.c*ddt_sv;
+            phase_m = phase_cyc(prn)*wavelength + p.c*dt_sv;
+            if ~isnan(sat.pos_ecef(1))
+                satlog.svprn_mark(prn) = p.glo.sys_num;satlog.prn_record(prn) = prn;
+            end
+         case 'gal'
+            [sat, dt_sv, ddt_sv] = eph2pos(p,eph_info,prn,tidx,t_sv,'gal',orbit_corr);
+            wavelength = p.gal.e1_wavelength;
+            doppler_i = -doppler_i*wavelength + p.c*ddt_sv;
+            phase_m = phase_cyc(prn)*wavelength + p.c*dt_sv;
+            if ~isnan(sat.pos_ecef(1))
+                satlog.svprn_mark(prn) = p.gal.sys_num;satlog.prn_record(prn) = prn;
+            end
+        case 'bds'
+            [sat, dt_sv, ddt_sv] = eph2pos(p,eph_info,prn,tidx,t_sv,'bds',orbit_corr);
+            wavelength = p.bds.e1_wavelength;
+            doppler_i = -doppler_i*wavelength + p.c*ddt_sv;
+            phase_m = phase_cyc(prn)*wavelength + p.c*dt_sv;
+            if ~isnan(sat.pos_ecef(1))
+                satlog.svprn_mark(prn) = p.bds.sys_num;satlog.prn_record(prn) = prn;
+            end
+    end
+    if ~isnan(sat.pos_ecef(1))
+        satlog.tp(prn) = tp_prime+dt_sv;
+        satlog.s_pos_ecef(:,prn) = sat.pos_ecef;
+        satlog.s_v_ecef(:,prn) = sat.v_ecef;
+        if p.post_mode == 1
+            satlog.s_pos_prc(:,prn) = sat.pos_prc;
+        end
+        % ts = tr - rho/c - dt_sv - dt_corr + code_bias;
+        satlog.corr_range(prn) = obs_range(prn)+p.c*dt_sv+clock_corr_m;
+        satlog.phase_m(prn) = phase_m;
+        satlog.wavelength(prn) = wavelength;
+        satlog.doppler(prn) = doppler_i;
     end
 end
 satlog.num_sv = sum(satlog.svprn_mark~=0);

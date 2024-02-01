@@ -1,0 +1,84 @@
+Overall performance
+RAPS Hor <= 1.0 m: 86.04%
+RAPS Hor <= 1.5 m: 93.96%
+RAPS Ver <= 3.0 m: 98.12%
+RAPS Hor Mean: 0.63
+RAPS Hor RMS: 0.80
+RAPS Hor Max: 4.61
+RAPS Ver Mean: 0.90
+RAPS Ver RMS: 1.19
+RAPS Ver Max: 7.57
+TD Hor <= 1.0 m: 79.76%
+TD Hor <= 1.5 m: 90.86%
+TD Ver <= 3.0 m: 88.65%
+TD Hor Mean: 0.70
+TD Hor RMS: 0.91
+TD Hor Max: 4.12
+TD Ver Mean: 1.39
+TD Ver RMS: 2.03
+TD Ver Max: 10.54
+EKF Hor <= 1.0 m: 77.55%
+EKF Hor <= 1.5 m: 88.24%
+EKF Ver <= 3.0 m: 86.12%
+EKF Hor Mean: 0.87
+EKF Hor RMS: 1.52
+EKF Hor Max: 12.39
+EKF Ver Mean: 1.58
+EKF Ver RMS: 2.67
+EKF Ver Max: 20.19
+Non-open sky Overall performance
+RAPS Hor <= 1.0 m: 82.09%
+RAPS Hor <= 1.5 m: 91.63%
+RAPS Ver <= 3.0 m: 97.52%
+RAPS Hor Mean: 0.73
+RAPS Hor RMS: 0.90
+RAPS Hor Max: 4.61
+RAPS Ver Mean: 0.95
+RAPS Ver RMS: 1.28
+RAPS Ver Max: 7.57
+TD Hor <= 1.0 m: 69.80%
+TD Hor <= 1.5 m: 86.01%
+TD Ver <= 3.0 m: 82.48%
+TD Hor Mean: 0.88
+TD Hor RMS: 1.08
+TD Hor Max: 4.12
+TD Ver Mean: 1.75
+TD Ver RMS: 2.46
+TD Ver Max: 10.54
+EKF Hor <= 1.0 m: 66.27%
+EKF Hor <= 1.5 m: 81.83%
+EKF Ver <= 3.0 m: 78.30%
+EKF Hor Mean: 1.14
+EKF Hor RMS: 1.88
+EKF Hor Max: 12.39
+EKF Ver Mean: 2.09
+EKF Ver RMS: 3.29
+EKF Ver Max: 20.19
+Open sky Overall performance
+RAPS Hor <= 1.0 m: 92.61%
+RAPS Hor <= 1.5 m: 97.83%
+RAPS Ver <= 3.0 m: 99.13%
+RAPS Hor Mean: 0.48
+RAPS Hor RMS: 0.58
+RAPS Hor Max: 2.13
+RAPS Ver Mean: 0.80
+RAPS Ver RMS: 1.03
+RAPS Ver Max: 4.89
+TD Hor <= 1.0 m: 96.30%
+TD Hor <= 1.5 m: 98.91%
+TD Ver <= 3.0 m: 98.91%
+TD Hor Mean: 0.41
+TD Hor RMS: 0.50
+TD Hor Max: 2.59
+TD Ver Mean: 0.78
+TD Ver RMS: 0.98
+TD Ver Max: 4.81
+EKF Hor <= 1.0 m: 96.30%
+EKF Hor <= 1.5 m: 98.91%
+EKF Ver <= 3.0 m: 99.13%
+EKF Hor Mean: 0.41
+EKF Hor RMS: 0.49
+EKF Hor Max: 2.59
+EKF Ver Mean: 0.75
+EKF Ver RMS: 0.96
+EKF Ver Max: 4.81

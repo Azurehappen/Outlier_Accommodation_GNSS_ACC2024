@@ -4,6 +4,7 @@ function [lat_f, lon_f]= pierce_point_calc(lat_0,lon_0,azim,elev,p)
 %%% lon_0: user longitude position
 %%%% azim: azimuth angle in radians
 %%%% elev: elevation angle in radians
+%%% r: user radius
 %%% p: parameter constant
 
 %%%% output:

@@ -22,7 +22,7 @@ if st.Day ~= et.Day || days(et-st)>1
     end
     t_sr = mid:days(1):et;
     if mid ~= st
-        t_sr = [st,t];
+        t_sr = [st,t_sr];
     end
     if t_sr(end)~=et
         t_sr = [t_sr,et];
@@ -62,15 +62,38 @@ if st.Day ~= et.Day || days(et-st)>1
         end
     end
 else
-    for t = st:minutes(15):et
-        Year = string(t,'yyyy'); Mon = string(t,'MM');
-        Day = string(t,'dd');
+    Year = string(st,'yyyy'); Mon = string(st,'MM');
+    Day = string(st,'dd');
+    url = "https://www.ngdc.noaa.gov/stp/IONO/USTEC/products/" + Year + "/"...
+        + Mon + "/" + Day;
+    % Check if url exist
+    try
+        S = webread(url);
+    catch
+        S = -1;
+    end
+    if S == -1
+        % Download compressed data file
         url = "https://www.ngdc.noaa.gov/stp/IONO/USTEC/products/" + Year + "/"...
-            + Mon + "/" + Day + "/" + string(t,'yyyyMMddHHmm') + "_TEC.txt";
-        file = load_path + string(t,'yyyyMMddHHmm') + "_TEC.txt";
-        if exist(file,'file')~=2
-            websave(file,url);
+            + Mon + "/" + string(st,'yyyyMMdd') + "_ustec.tar.gz";
+        file = load_path + string(st,'yyyyMMdd') + "_ustec.tar.gz";
+        gzfile = websave(file,url);
+        tarfile = gunzip(gzfile);
+        delete(gzfile);
+        untar(tarfile);
+        delete(tarfile);
+    else
+        for t = st:minutes(15):et
+            Year = string(t,'yyyy'); Mon = string(t,'MM');
+            Day = string(t,'dd');
+            url = "https://www.ngdc.noaa.gov/stp/IONO/USTEC/products/" + Year + "/"...
+                + Mon + "/" + Day + "/" + string(t,'yyyyMMddHHmm') + "_TEC.txt";
+            file = load_path + string(t,'yyyyMMddHHmm') + "_TEC.txt";
+            if exist(file,'file')~=2
+                websave(file,url);
+            end
         end
     end
+
 end
 fprintf ('Down.\n');

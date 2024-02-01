@@ -1,4 +1,4 @@
-function sat_prec = sat_position_precise(p,IGSdata,sat_pos_ecef,sat_v_ecef,prn,igs_idx,t_tsm)
+function sat_prec = sat_position_precise(orbit_corr,sat_pos_ecef,sat_v_ecef,t_tsm)
 % Compute precise satellit postion
 % Input:
 %       p: parameters
@@ -8,9 +8,9 @@ function sat_prec = sat_position_precise(p,IGSdata,sat_pos_ecef,sat_v_ecef,prn,i
 
 
 % orbit correction in radial along cross track direction
-dP_rac = [IGSdata.orbit_x(prn,igs_idx);IGSdata.orbit_y(prn,igs_idx);IGSdata.orbit_z(prn,igs_idx)];
+dP_rac = [orbit_corr.x; orbit_corr.y; orbit_corr.z];
 % orbit velocity correction in radial along cross track direction
-dV_rac = [IGSdata.orbit_xv(prn,igs_idx);IGSdata.orbit_yv(prn,igs_idx);IGSdata.orbit_zv(prn,igs_idx)];
+dV_rac = [orbit_corr.dx; orbit_corr.dy; orbit_corr.dz];
 
 % theta = p.omge * limit_tgps(t_tsm - p.IGS.orbit_iTOW(igs_idx));
 % R = [ cos(theta)  sin(theta)  0;
@@ -19,7 +19,7 @@ dV_rac = [IGSdata.orbit_xv(prn,igs_idx);IGSdata.orbit_yv(prn,igs_idx);IGSdata.or
 % dP_rac = R*dP_rac;
 % dV_rac = R*dV_rac;
 % Compute position error
-deph = limit_tgps(t_tsm - p.IGS.orbit_iTOW(igs_idx));
+deph = limit_tgps(t_tsm - posixtime(orbit_corr.datetime));
 dP_rac = dP_rac + dV_rac*deph;
 
 dP_ecef=RAC2ECEF(dP_rac,sat_pos_ecef,sat_v_ecef);

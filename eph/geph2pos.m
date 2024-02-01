@@ -1,4 +1,4 @@
-function [sat, dt_sv] = geph2pos(p,eph,prn,tidx,t_gst,sys_type)
+function [sat, dt_sv, ddt_sv] = geph2pos(p,eph,prn,tidx,t_gst)
 % compute ephemeris to satellite position and clock bias
 % for GLONASS system
 %%%%%% Inputs
@@ -18,7 +18,7 @@ sat.pos_ecef = NaN(3,1);
 sat.v_ecef = NaN(3,1);
 dt_sv = 0;
 dt_sv_p = 0;
-if p.post_mode == 1
+if p.post_mode == p.mode_ppp
     % Save the precise pos and velocity in PPP mode 
     sat.pos_prc = NaN(3,1); 
 %     sat.v_prc = NaN(3,1);
@@ -26,9 +26,9 @@ end
 %Psedotime that the satellite broadcast the signal
 %--------------------------%
 % Find if there is PPP IGS correction
-[tidx,obt_idx,clk_idx,pos_tage,IGSdata,icb] = tidxconf(p,t_gst,prn,tidx,eph,sys_type);
+% [tidx,obt_idx,clk_idx,pos_tage,IGSdata,icb] = tidxconf(p,t_gst,prn,tidx,eph,sys_type);
+tidx=tidx(end);
 %--------------------------%
-if pos_tage == 1
 % position
 X_pos = eph.X(prn,tidx);
 Y_pos = eph.Y(prn,tidx);
@@ -51,13 +51,15 @@ Xf = ode4(@(t,y) diffEq(t,y, acc), 0,60,time, Xo);
 sat.pos_ecef = Xf(end,1:3)';
 sat.v_ecef = Xf(end,4:6)';
 
-if p.post_mode == 1 && p.IGS_enable == 1
+dt_sv2 = eph.nTauN(prn,tidx)+eph.pGammaN(prn,tidx)*(t_gst+0.001-eph.t_oc{prn}(tidx));
+ddt_sv = (dt_sv2 - dt_sv) / 0.001;
+
+if p.post_mode == p.mode_ppp && p.IGS_enable == 1
     sat.pos_prc = sat_position_precise(p,IGSdata,sat.pos_ecef,sat.v_ecef,prn,obt_idx,t_gst);
     dt_sv_p = sat_clock_precise(p,IGSdata,prn,clk_idx,t_gst);
     dt_sv = dt_sv + dt_sv_p + icb(prn)*1e-9;
 end
 
-end
 %---------------------------------------------------------%
 function y_out = ode4(F,t0,h,tfinal,y0)
 % ODE4  Classical Runge-Kutta ODE solver.

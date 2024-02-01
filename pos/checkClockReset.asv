@@ -1,0 +1,18 @@
+function [x, cov, flag] = checkClockReset(p, x0, cov0, num_user_states, res, cpt)
+
+x = x0;
+cov = cov0;
+flag = false;
+if sum(abs(res) > 5000) > 0.8*length(res)
+    [estState,~,~,clk_ref] = weightLsSolver(p,cpt,true);
+    [estState.vel,estState.clock_drift] = velSolver(estState.pos,cpt);
+    x(num_user_states+1:end-1) = clk_ref;
+    x(end) = estState.clock_drift;
+    cov(:, clk_ind:clk_ind+1) = zeros(length(x0),2);
+    cov(clk_ind:clk_ind+1,:) = zeros(2,length(x0));
+    cov(clk_ind, clk_ind) = 200^2;
+    cov(clk_ind+1, clk_ind+1) = 200^2;
+    flag = true;
+end
+
+end

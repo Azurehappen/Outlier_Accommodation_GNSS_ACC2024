@@ -41,11 +41,11 @@ iy = (siteLat-lat(1))/(lat(2)-lat(1)) + 1;
 
 Y_grid = zeros( size(doy,2), 4);
 
-for igrid=1:4 
+for igrid=1:4
     a=mod( fix(ix+bitand(igrid-1, 1))-1, nLon) + 1;
     b=fix(iy)+ fix((igrid-1)/2);
     if b>nLat
-        b=nLat
+        b=nLat;
     end 
     a_coeff = coeff(fix(a), fix(b), :, :);
     a_coeff = reshape(a_coeff, [nHPara nPara]);

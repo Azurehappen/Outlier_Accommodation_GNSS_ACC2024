@@ -7,6 +7,7 @@ if ~isempty(i0)
     cpt.svprn_mark(ind_prn(i0))=0;
     cpt.diff_corr(i0)=[];
     cpt.corr_range(i0)=[];
+    cpt.doppler(i0)=[];
     cpt.s_pos_ecef(:,i0)=[];
     cpt.elev(i0) = [];
     cpt.az(i0) = [];

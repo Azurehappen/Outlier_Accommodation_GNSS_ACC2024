@@ -12,12 +12,12 @@ end
 PRN_i = strfind(line,'PRN');
 type_i = strfind(line,'OBS1');
 val_i = strfind(line,'VALUE____');
-bia.GPS.bia_C1C = zeros(p.gps.num_prn,1);
-bia.GPS.bia_C2L = zeros(p.gps.num_prn,1);
-bia.GAL.bia_C1C = zeros(p.gal.num_prn,1);
-bia.GAL.bia_C7Q = zeros(p.gal.num_prn,1);
-bia.BDS.bia_C2I = zeros(p.bds.num_prn,1);
-bia.BDS.bia_C7I = zeros(p.bds.num_prn,1);
+bia.GPS.bia_C1C = NaN(p.gps.max_prn,1);
+bia.GPS.bia_C2L = NaN(p.gps.max_prn,1);
+bia.GAL.bia_C1C = NaN(p.gal.max_prn,1);
+bia.GAL.bia_C7Q = NaN(p.gal.max_prn,1);
+bia.BDS.bia_C2I = NaN(p.bds.max_prn,1);
+bia.BDS.bia_C7I = NaN(p.bds.max_prn,1);
 while ~feof(biafile)
     line = fgetl(biafile);
     if strcmp(line(PRN_i),'G')

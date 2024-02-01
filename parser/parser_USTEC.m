@@ -43,7 +43,7 @@ for i_file = 1:length(USTEC_file)
         
         %%%Find the begining 
         if contains(data_line,'#                 Vertical and Slant Path Total Electron Content')
-           start_line = line_now+2;          
+           start_line = line_now+3;
         end
         if line_now == start_line
            flag_log = 1; 

@@ -1,4 +1,4 @@
-function [pos,clock_bias,res] = LSsolver(p,xk,H_offset,cpt)
+ function [pos,clock_bias,isb,res] = LSsolver(p,xk,H_isb,cpt)
  
 y = cpt.corr_range;
 num = length(y); % The number of measurement
@@ -23,10 +23,10 @@ for iter=1:p.Nls
     R(j)=norm(s_pos_ecef(:,j)-xk(1:3));
     V= (xk(1:3)-s_pos_ecef(:,j))'/R(j)+...
         [-s_pos_ecef(2,j)*p.omge/p.c s_pos_ecef(1,j)*p.omge/p.c 0]; 
-    H(j,:)=[V 1]; 
+    H(j,:)=[V 1];
     r(j) = R(j)+sagnac(p,s_pos_ecef(:,j),xk);
-    if ~isempty(H_offset)
-         ind = find(H_offset(j,:)==1);
+    if ~isempty(H_isb)
+         ind = find(H_isb(j,:)==1);
          if ~isempty(ind)
               off(j) = xk(4+ind);
          end
@@ -37,7 +37,7 @@ for iter=1:p.Nls
 %         H_os = [H,H_offset,cpt.IoFac];
 %     else
         res = y - r - xk(4)-off;
-        H_os = [H,H_offset];
+        H_os = [H,H_isb];
 %     end
 delta_x = (H_os'*H_os)^(-1)*H_os'*(res);
 xk=xk+delta_x; 
@@ -52,9 +52,13 @@ end
 % pos = xk(1:3);
 % clock_bias = xk(4);
 GDOP = sqrt(trace((H_os'*H_os)^(-1)));
+isb = [];
 if GDOP_check(p,GDOP)==1  
     pos = xk(1:3);
     clock_bias = xk(4);
+    if ~isempty(H_isb)
+        isb = xk(5:end);
+    end
 else
     pos = [];
     clock_bias = [];

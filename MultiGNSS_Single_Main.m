@@ -1,6 +1,10 @@
-% This code implement GNSS (GPS, GLO, GAL, BDS) under single frequency
-% Special for CNES SSR data
-% Correction type: PPP (Precise Point Positioning)
+% This code implement single frequency code-based GNSS (GPS, GLO, GAL, BDS)
+% PPP solution using real-time PPP correction.
+% PPP corrections:
+%   SSR satellite orbit and clock correction (WHU stream)
+%   Troposphere correction: IGGtrop or UNB3M
+%   Ionosphere correction: SSR VTEC (CNES stream)
+%   Satellite code bias (OSR): GIPP product
 % clear all
 % close all
 %--------------------------------%
@@ -10,24 +14,32 @@ addpath('time_compute')
 addpath('eph')
 addpath('pos')
 addpath('corr')
+addpath('init')
+addpath('estimation')
 %--------------------------------%
 % Pick the Data Number
-initpath = 'data/';
-data_num = 3;
-[eph_name,obs_name,IGS_name,data_base,code_bia,Grdpos,USTEC] = datapathload(data_num,initpath);
+data_num = 1;
+files = dataPathLoader(data_num);
 %--------------------------------%
 
 % Initialize parameters
-[p,eph,obs] = initialization(eph_name,obs_name,Grdpos);
-% obs.GLO.S1 = obs.GLO.S2; % Uncomment when GLO in data 8
-% obs.BDS.P1(18,:) = 0;
-% Mode setting
+if exist(files.preload,'file')==2 % Check if the data already been parsed
+    load(files.preload);
+else
+    [p, eph, obs] = readDataFiles(files);
+    %--------------------------------%
+    [p, obs] = loadDataAndCorr(p, files, eph, obs);
+    save(files.preload, 'p', 'eph', 'obs');
+end
+%%
+p = initialParameters(p, files, eph);
 p.run_mode = 0;
-p.post_mode  = 2; %%%% 0=Standard GNSS, 1 = PPP, 2= DGNSS
-p.VRS_mode = 1;
+p.post_mode  = p.mode_ppp; % sps=Standard GNSS, ppp = PPP, dgnss = DGNSS
 p.IGS_enable = 1;
+p.VRS_mode = 0;
 p.double_diff = 0;
-p.elev_mark  = 15*pi/180;
+p.elev_mark_rad  = deg2rad(10);
+% To use Multi-GNSS and DGNSS, GPS have  to be enabled.
 p.enableGPS  = 1; % Enable GPS: 1 means enable, 0 means close
 p.enableGLO  = 0; % Enable GLO: 1 means enable, 0 means close
 p.enableGAL  = 1; % Enable GAL: 1 means enable, 0 means close
@@ -35,13 +47,25 @@ p.enableBDS  = 1; % Enable BDS: 1 means enable, 0 means close
 p.inval = 1; % Computation time interval
 p.tec_tmax = 15;
 p.tec_tmin = 0;
-p.L2enable = 1;
-%--------------------------------%
-[p,obs] = load_PPP_corr(p,data_base,IGS_name,eph,obs,USTEC,code_bia);
-%-------------%
+p.L2enable = 0;
+p.enable_vtec = true;
+p.est_mode = p.raps_ned_est; % map_est, td_est, raps_ned_est
+p.state_mode = p.pva_mode; % POS, PVA
+% obs = p.obs_b;
+% p.Grdpos.pos = [-742080.469;-5462030.972;3198339.001];
+% p.Grdpos.t = NaN;
+if p.state_mode == p.pos_mode
+    p.ekf_para.q_pos = 200^2;
+end
+
 output = compute_gnss_ecef(p,eph,obs);
 
 %%
+nonNaNCount = sum(~isnan(output.hor_err));
+percentage = sum(output.hor_err < 1.0) / nonNaNCount * 100
+percentage = sum(output.hor_err < 1.5) / nonNaNCount * 100
+percentage = sum(output.err < 3.0) / nonNaNCount * 100
+
 figure
 scatter(p.t,output.err,'.')
 xtickformat('yyyy-MM-dd HH:mm:ss')
@@ -56,27 +80,154 @@ title('Horizontal positioning error')
 xlabel('Local time')
 ylabel('Error, unit: meter');grid on
 
-total = output.sv_num_GPS + output.sv_num_GAL + output.sv_num_BDS;
 figure
-scatter(p.t,output.sv_num_GPS,'.')
-hold on
-scatter(p.t,output.sv_num_GAL,'.')
-hold on
-scatter(p.t,output.sv_num_BDS,'.')
-hold on
+scatter(p.t,output.open_sky,'.')
+xtickformat('yyyy-MM-dd HH:mm:ss')
+title('Open sky indicator')
+xlabel('Local time')
+ylabel('Indicator');grid on
+
+
+total = output.sv_num_GPS + output.sv_num_GLO + output.sv_num_GAL + output.sv_num_BDS;
+figure
 scatter(p.t,total,'.')
 title('total satellites been used')
-legend('GPS','GAL','BDS','Total')
+% legend('GPS','GAL','BDS','Total')
 xlabel('Receiver time using GPS second')
 ylabel('Distance, unit: meter');grid on
-% % 
-% figure
-% scatter(p.t,output.rover_clk/p.c,'.')
-% title('Local bias')
-% xlabel('Receiver time using GPS second');
-% ylabel('Clock bias, seconds');grid on
-% 
+% %
+figure
+scatter(p.t,output.rover_clk/p.c,'.')
+title('Local bias')
+xlabel('Receiver time using GPS second');
+ylabel('Clock bias, seconds');grid on
 
+if p.enableGLO
+    figure
+    scatter(p.t,output.clk_glo-output.clk_gps,'.')
+    title('ISB GLO')
+    xlabel('Receiver time using GPS second');
+    ylabel('GPS-GLO ISB, meter');grid on
+end
+
+if p.enableGAL == 1
+    figure
+    scatter(p.t,output.clk_gal-output.clk_gps,'.')
+    title('ISB GAL')
+    xlabel('Receiver time using GPS second');
+    ylabel('GPS-GAL ISB, meter');grid on
+end
+
+if p.enableBDS == 1
+    figure
+    scatter(p.t,output.clk_bds-output.clk_gps,'.')
+    title('ISB BDS')
+    xlabel('Receiver time using GPS second');
+    ylabel('GPS-BDS ISB, meter');grid on
+end
+
+figure
+subplot(311)
+scatter(p.t,sqrt(output.ned_cov(1,:)),'.')
+title('NED Pos Covariance')
+ylabel('Cov N, meter');grid on
+subplot(312)
+scatter(p.t,sqrt(output.ned_cov(2,:)),'.')
+ylabel('Cov E, meter');grid on
+subplot(313)
+scatter(p.t,sqrt(output.ned_cov(3,:)),'.')
+ylabel('Cov D, meter');grid on
+title('NED Pos Covariance')
+xlabel('Receiver time using GPS second');
+
+figure
+subplot(311)
+scatter(p.t,sqrt(output.state_cov(1,:)),'.')
+ylabel('Cov x, meter');grid on
+subplot(312)
+scatter(p.t,sqrt(output.state_cov(2,:)),'.')
+ylabel('Cov y, meter');grid on
+subplot(313)
+scatter(p.t,sqrt(output.state_cov(3,:)),'.')
+ylabel('Cov z, meter');grid on
+title('ECEF Pos Covariance')
+xlabel('Receiver time using GPS second');
+
+if p.est_mode == p.raps_est || p.est_mode == p.raps_ned_est
+    figure
+    scatter(p.t,total - output.raps_num_sat,'.')
+    title('No. of satellites been removed')
+    xlabel('Receiver time using GPS second')
+    ylabel('Distance, unit: meter');grid on
+
+    figure
+    subplot(311)
+    scatter(p.t,sqrt(output.pos_info_ned(1,:)),'.')
+    hold on
+    yline(sqrt(1/p.raps.poshor_cov_spec))
+    ylabel('Infor N, meter');grid on
+    subplot(312)
+    scatter(p.t,sqrt(output.pos_info_ned(2,:)),'.')
+    hold on
+    yline(sqrt(1/p.raps.poshor_cov_spec))
+    ylabel('Infor E, meter');grid on
+    subplot(313)
+    scatter(p.t,sqrt(output.pos_info_ned(3,:)),'.')
+    hold on
+    yline(sqrt(1/p.raps.posver_cov_spec))
+    ylabel('Infor D, meter');grid on
+    title('NED Pos Information')
+    xlabel('Receiver time using GPS second');
+end
+
+if p.state_mode == p.pva_mode
+    figure
+    subplot(311)
+    grid on
+    plot(p.t,output.vel_ned(1,:),'.')
+    subplot(312)
+    plot(p.t,output.vel_ned(2,:),'.')
+    subplot(313)
+    plot(p.t,output.vel_ned(3,:),'.')
+    title('Plot for Velocity')
+    xlabel('Local time')
+    ylabel('NED Velocity, m/s')
+    if isfield(p.Grdpos, 'vel')
+        figure
+        subplot(311)
+        plot(p.t,output.vel_ned_err(1,:),'.')
+        subplot(312)
+        plot(p.t,output.vel_ned_err(2,:),'.')
+        subplot(313)
+        plot(p.t,output.vel_ned_err(3,:),'.')
+        grid on
+        legend('North', 'East', 'Vertical');
+        title('Error Plot for Velocity')
+        xlabel('Local time')
+        ylabel('NED Velocity Error, m/s')
+        figure
+        subplot(311)
+        plot(p.t,output.vel_ned(1,:),'.')
+        hold on
+        plot(p.Grdpos.datet,p.Grdpos.vel(1,:))
+        legend('North Exp', 'North Gt');
+        title('Rover speed in NED')
+        subplot(312)
+        plot(p.t,output.vel_ned(2,:),'.')
+        hold on
+        plot(p.Grdpos.datet,p.Grdpos.vel(2,:))
+        legend('East Exp', 'East Gt');
+        subplot(313)
+        plot(p.t,-output.vel_ned(3,:),'.')
+        hold on
+        plot(p.Grdpos.datet,p.Grdpos.vel(3,:))
+        legend('Vertivcal Exp', 'Vertical Gt');
+    end
+end
+
+plotEstPosOnMap(output.pos_ecef, output.hor_err)
+% A = zeros(1, length(p.Grdpos.pos));
+% plotEstPosOnMap(p.Grdpos.pos, A)
 % figure
 % subplot(311)
 % scatter(p.t,output.ned_err(1,:),'.')
@@ -103,19 +254,19 @@ ylabel('Distance, unit: meter');grid on
 % title('Number of GPS satellites')
 % xlabel('Receiver time using GPS second')
 % ylabel('Distance, unit: meter');grid on
-% 
+%
 % figure
 % scatter(output.gpst,output.sv_num_GLO,'.')
 % title('Number of GLO satellites')
 % xlabel('Receiver time using GPS second')
 % ylabel('Distance, unit: meter');grid on
-% 
+%
 % figure
 % scatter(output.gpst,output.sv_num_GAL,'.')
 % title('Number of GAL satellites')
 % xlabel('Receiver time using GPS second')
 % ylabel('Distance, unit: meter');grid on
-% 
+%
 % figure
 % scatter(output.gpst,output.sv_num_BDS,'.')
 % title('Number of BDS satellites')

@@ -1,10 +1,21 @@
-function tidx = ephtidx(t_oc,t_sv,SV_health,message_duration)
+function tidx = ephtidx(eph_info,t_sv,prn,message_duration,sys_type,ppp_flag)
 % find the time index in eph data
 
-dtr = limit_tgps(t_sv-t_oc); % Limit time (in seconds) to 1-week
-tidx = find(dtr>=-message_duration&dtr<=message_duration);
+t_oc = eph_info.t_oc{prn};
+SV_health = eph_info.SV_health(prn,:);
+dtr = t_sv-t_oc;
+if ppp_flag == true
+    tidx = find(dtr>=-message_duration&dtr<=message_duration);
+else
+    tidx = find(dtr>=-message_duration&dtr<=message_duration);
+end
 % Satellite health check
 i = SV_health(tidx)==0;
 tidx = tidx(i);
-
+if strcmp(sys_type,'gal')
+    % Skip F/NAV msg
+    data_source = eph_info.Data_source(prn,:);
+    i = data_source(tidx)==517;
+    tidx = tidx(i);
+end
 end
